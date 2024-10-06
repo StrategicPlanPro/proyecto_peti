@@ -14,4 +14,4 @@ Hola chicos, a continuación están los comandos que deben ejecutar para poder i
 
 Luego solo queda acceder con esta URL: http://localhost:8080/
 
-Si quieren ver verificar si la conexion a la base de datos es exitosa, vayan a estar URL: http://localhost:8080/presentation/controllers/testConnection.php
+Si quieren verificar si la conexion a la base de datos es exitosa, vayan a estar URL: http://localhost:8080/presentation/controllers/testConnection.php
