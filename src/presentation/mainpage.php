@@ -37,6 +37,9 @@
         .btn:hover {
             background-color: #00796b;
         }
+        .header h1 {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
