@@ -8,8 +8,10 @@ class Conexion {
         $db = getenv('DB_NAME');
         $user = getenv('DB_USER');
         $pass = getenv('DB_PASSWORD');
+        $sslmode = 'require';
 
-        $dsn = "pgsql:host=$host;dbname=$db";
+        // Cadena DSN para PostgreSQL con puerto y SSL
+        $dsn = "pgsql:host=$host;dbname=$db;sslmode=$sslmode";
 
         try {
             $this->pdo = new PDO($dsn, $user, $pass);

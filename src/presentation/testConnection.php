@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../data/neonConnection.php';
+require_once '../data/neonConnection.php';
 
 try {
     // Instancia de la clase Conexion
