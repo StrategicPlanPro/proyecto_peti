@@ -2,7 +2,6 @@
 
 require_once '../data/neonConnection.php';
 
-// Función para verificar el usuario por nombre de usuario
 function verificarUsuario($username) {
     $conexion = new Conexion();
     $conn = $conexion->getConnection();
@@ -12,9 +11,9 @@ function verificarUsuario($username) {
     $stmt->bindParam(':username', $username, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve el usuario o false
     } else {
-        return false;
+        return false; // Error en la consulta
     }
 }
 

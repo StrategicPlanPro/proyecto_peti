@@ -41,8 +41,7 @@
         </div>
 
         <div class="btn-container">
-            <a href="presentation/login.php" class="btn">Iniciar Sesión</a>
-            <a href="presentation/registro.php" class="btn">Registrarse</a>
+            <a href="presentation/login.php" class="btn">¡Crea tu plan ahora!</a>
         </div>
     </div>
 

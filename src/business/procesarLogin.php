@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validar que los campos no estén vacíos
     if (empty($username) || empty($password)) {
-        echo "Username or password cannot be empty.";
+        echo "El nombre de usuario o la contraseña no pueden estar vacíos.";
         exit;
     }
 
@@ -30,10 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: ../presentation/dashboard.php");
             exit;
         } else {
-            echo "Invalid username or password.";
+            echo "Nombre de usuario o contraseña incorrectos.";
         }
     } else {
-        echo "Invalid username or password.";
+        echo "Nombre de usuario o contraseña incorrectos.";
     }
 }
 ?>

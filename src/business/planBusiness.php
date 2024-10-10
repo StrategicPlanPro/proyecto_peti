@@ -1,4 +1,5 @@
 <?php
+
 require_once('../data/plan.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crearPlan'])) {
@@ -33,9 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crearPlan'])) {
     $resultado = $planData->crearPlan($nombreEmpresa, $fecha, $promotores, $logo);
 
     // Verificar el resultado
-    if ($resultado) {
-        echo "Plan creado exitosamente.";
+    if ($resultado) { // $resultado ahora es la ID del plan
+        // Guardar la ID del plan en la sesión
+        $_SESSION['idPlan'] = $resultado; // Guardar la ID del plan recién creado en la sesión
+
+        // Redirigir a la página de misión
+        header("Location: ../presentation/mision.php");
+        exit;
     } else {
         echo "Hubo un error al crear el plan.";
     }
 }
+?>

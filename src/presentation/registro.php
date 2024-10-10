@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,33 +23,33 @@
 					<div class="wrap d-md-flex">
 						<div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
 							<div class="text w-100">
-								<h2>Create an Account</h2>
-								<p>Already have an account?</p>
-								<a href="login.php" class="btn btn-white btn-outline-white">Sign In</a>
+								<h2>Crear una Cuenta</h2>
+								<p>¿Ya tienes una cuenta?</p>
+								<a href="login.php" class="btn btn-white btn-outline-white">Iniciar Sesión</a>
 							</div>
 			      </div>
 						<div class="login-wrap p-4 p-lg-5">
 			      	<div class="d-flex">
 			      		<div class="w-100">
-			      			<h3 class="mb-4">Register</h3>
+			      			<h3 class="mb-4">Registrarse</h3>
 			      		</div>
 			      	</div>
                       <form action="../business/procesarRegistro.php" method="POST" class="signin-form">
     <div class="form-group mb-3">
-        <label class="label" for="username">Username</label>
-        <input type="text" name="username" class="form-control" placeholder="Username" required>
+        <label class="label" for="username">Nombre de Usuario</label>
+        <input type="text" name="username" class="form-control" placeholder="Nombre de Usuario" required>
     </div>
     <div class="form-group mb-3">
-        <label class="label" for="password">Password</label>
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <label class="label" for="password">Contraseña</label>
+        <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
     </div>
     <div class="form-group mb-3">
-        <label class="label" for="confirm_password">Confirm Password</label>
-        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+        <label class="label" for="confirm_password">Confirmar Contraseña</label>
+        <input type="password" name="confirm_password" class="form-control" placeholder="Confirmar Contraseña" required>
     </div>
     <div class="form-group">
         <br>
-        <button type="submit" class="form-control btn btn-primary submit px-3">Register</button>
+        <button type="submit" class="form-control btn btn-primary submit px-3">Registrar</button>
     </div>
 </form>
 		        </div>

@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Plan Ejecutivo</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .btn-volver {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -28,10 +39,8 @@
 
                 <input type="submit" name="crearPlan" value="Crear Plan">
             </form>
-        </div>
-
-        <div class="info-content">
-            <?php include('aside.php'); ?> 
+            <br>
+            <a href="../presentation/dashboard.php" class="btn-volver">Volver</a>
         </div>
     </div>
 
