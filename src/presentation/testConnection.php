@@ -13,3 +13,5 @@ try {
 } catch (Exception $e) {
     echo "Error en la conexión: " . $e->getMessage();
 }
+
+echo 'Host: ' . getenv('DB_HOST') . "<br>";
