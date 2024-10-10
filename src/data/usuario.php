@@ -7,7 +7,7 @@ function verificarUsuario($username) {
     $conexion = new Conexion();
     $conn = $conexion->getConnection();
 
-    $sql = "SELECT idUsuario, password FROM usuario WHERE username = :username";
+    $sql = "SELECT idusuario, password FROM usuario WHERE username = :username";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':username', $username, PDO::PARAM_STR);
 
