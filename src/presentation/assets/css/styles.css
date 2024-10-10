@@ -1,0 +1,105 @@
+body {
+    display: flex;
+    justify-content: flex-start;
+    gap: 30px; 
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #D0F0FF; /* Fondo azul pastel */
+}
+
+aside {
+    flex: 0.35;  
+    padding: 20px; 
+    background-color: #73C2FB; /* Azul claro */
+    border: 1px solid #004E8F; /* Azul oscuro */
+    height: 100vh;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+aside h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: left;
+    color: #004E8F; /* Azul oscuro */
+}
+
+aside ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+aside ul li {
+    padding: 15px 0; 
+    font-size: 18px;
+    border-bottom: 1px solid #F5A76E; /* Naranja claro */
+}
+
+aside ul li:last-child {
+    border-bottom: none;
+}
+
+aside ul li a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #D9704E; /* Naranja oscuro */
+}
+
+aside ul li a:hover {
+    text-decoration: underline;
+    color: #F5A76E; /* Naranja claro */
+}
+
+form {
+    flex: 1;  
+    padding: 40px;
+    margin: 30px auto; 
+    border: 1px solid #004E8F; /* Azul oscuro */
+    background-color: #F5D7B2; /* Beige */
+    border-radius: 15px;
+    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2); 
+    max-width: 800px;  
+    width: 90%;  
+}
+
+form h1 {
+    font-size: 32px;
+    margin-bottom: 25px;
+    color: #004E8F;
+    text-align: center; 
+}
+
+form label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: bold;
+    color: #004E8F; 
+    font-size: 16px;
+}
+
+form input[type="text"],
+form input[type="date"],
+form input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #D9704E; 
+    border-radius: 8px;
+    background-color: white;
+    font-size: 16px;
+}
+
+form input[type="submit"] {
+    padding: 15px 35px; 
+    background-color: #D9704E; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px; 
+    transition: background-color 0.3s ease;
+}
+
+form input[type="submit"]:hover {
+    background-color: #F5A76E; 
+}
