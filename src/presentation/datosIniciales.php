@@ -31,7 +31,7 @@
         </div>
 
         <div class="info-content">
-            <?php include('aside.php'); ?> <!-- Aquí incluimos el aside -->
+            <?php include('aside.php'); ?> 
         </div>
     </div>
 

@@ -27,7 +27,7 @@ body {
 .content h1 {
     font-weight: bold;
     font-size: 1.8rem;
-    color: #f76a6a; /* Color principal modificado */
+    color: #f76a6a; 
     margin-bottom: 20px;
 }
 
@@ -39,7 +39,7 @@ body {
 
 .content h3 {
     margin-bottom: 10px;
-    color: #f85b6b; /* Color secundario modificado */
+    color: #f85b6b; 
     text-align: left;
 }
 
@@ -59,7 +59,7 @@ body {
 }
 
 .btn {
-    background-color: #f76a6a; /* Color principal modificado */
+    background-color: #f76a6a; 
     color: white;
     padding: 12px 25px;
     border-radius: 5px;
@@ -71,5 +71,5 @@ body {
 }
 
 .btn:hover {
-    background-color: #f85b6b; /* Color secundario modificado */
+    background-color: #f85b6b; 
 }
