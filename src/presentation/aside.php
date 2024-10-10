@@ -9,7 +9,7 @@
     <aside>
         <h2>No se que poner aqui</h2>
         <ul>
-            <li><a href="#">Datos Iniciales</a></li>
+            <li><a href=datosIniciales.php>Datos Iniciales</a></li>
             <li><a href="#">Mision</a></li>
             <li><a href="#">Vision</a></li>
             <li><a href="#">Valores</a></li>
