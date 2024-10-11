@@ -78,6 +78,21 @@ class PlanData
         return null;
     }
     
+    public function obtenerVisionPorId($idPlan) {
+        $conexion = new Conexion();
+        $conn = $conexion->getConnection();
+    
+        $sql = "SELECT vision FROM plan WHERE idPlan = :idPlan"; // Ajusta según tu tabla
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':idPlan', $idPlan, PDO::PARAM_INT);
+    
+        if ($stmt->execute()) {
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultado ? $resultado['vision'] : null;
+        }
+        return null;
+    }
+
     public function obtenerPlanPorId($idplan, $idusuario) {
         $conn = new Conexion();
         $db = $conn->getConnection();
@@ -108,6 +123,33 @@ class PlanData
     
         // Vincular los parámetros
         $stmt->bindValue(1, $nuevaMision, PDO::PARAM_STR);
+        $stmt->bindValue(2, $idPlan, PDO::PARAM_INT);
+    
+        // Ejecutar la consulta
+        $resultado = $stmt->execute();
+        $stmt->closeCursor(); // Cerrar el cursor
+        $conn = null; // Cerrar la conexión
+    
+        return $resultado; // Retornar el resultado de la ejecución
+    }
+
+    public function actualizarVision($idPlan, $nuevaVision)
+    {
+        // Conexión a la base de datos
+        $db = new Conexion();
+        $conn = $db->getConnection();
+    
+        // Preparar la consulta SQL para actualizar la visión
+        $sql = "UPDATE plan SET vision = ? WHERE idplan = ?";
+    
+        // Preparar la declaración
+        $stmt = $conn->prepare($sql);
+        if ($stmt === false) {
+            die("Error al preparar la consulta SQL: " . $conn->errorInfo());
+        }
+    
+        // Vincular los parámetros
+        $stmt->bindValue(1, $nuevaVision, PDO::PARAM_STR);
         $stmt->bindValue(2, $idPlan, PDO::PARAM_INT);
     
         // Ejecutar la consulta

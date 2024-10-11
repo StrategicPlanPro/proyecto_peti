@@ -3,7 +3,7 @@
     <ul>
         <li><a href="datosIniciales2.php">Datos Iniciales</a></li>
         <li><a href="mision.php">Misión</a></li>
-        <li><a href="#">Visión</a></li>
+        <li><a href="vision.php">Visión</a></li>
         <li><a href="#">Valores</a></li>
         <li><a href="#">Objetivos</a></li>
         <li><a href="#">Análisis Interno y Externo</a></li>
