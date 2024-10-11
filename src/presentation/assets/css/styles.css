@@ -1,0 +1,120 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f5f5f5;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    width: 1000px;  /* Ajustamos el ancho del contenedor */
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.form-content {
+    flex: 2; /* Ocupa más espacio que el aside */
+    padding: 50px;
+    background-color: #ffffff;
+}
+
+.form-content h1 {
+    margin-bottom: 40px;
+    font-size: 30px;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+form input[type="text"],
+form input[type="date"],
+form input[type="file"] {
+    margin-bottom: 20px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+form input[type="submit"] {
+    padding: 15px;
+    background-color: #f76a6a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+    background-color: #f85b6b;
+}
+
+.info-content {
+    flex: 1;  /* Menor espacio para el aside */
+    background: linear-gradient(135deg, #f76a6a, #f85b6b, #f91c6d);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+}
+
+.info-content aside {
+    color: white;
+    padding: 20px;
+    background-color: transparent; 
+}
+
+.info-content aside h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.info-content aside ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.info-content aside ul li {
+    margin-bottom: 10px;
+}
+
+.info-content aside ul li a {
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+}
+
+.info-content aside ul li a:hover {
+    color: #ffd1d1; 
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .form-content,
+    .info-content {
+        width: 100%;
+    }
+}
