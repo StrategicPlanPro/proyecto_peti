@@ -306,5 +306,24 @@ class PlanData
         }
     }
     
-
+    public function obtenerPlanPorIdMango($idPlan) {
+        try {
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Consulta para obtener todos los campos excepto las IDs
+            $query = "SELECT nombreEmpresa, fecha, promotores, logo, mision, vision, valores, 
+                      objetivosGenerales, objetivosEspecificos, fortalezas, debilidades, 
+                      oportunidades, amenazas, estrategia, accionesCompetitivas, conclusiones 
+                      FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+            $stmt->bindParam(':idPlan', $idPlan);
+            $stmt->execute();
+    
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }    
 }
