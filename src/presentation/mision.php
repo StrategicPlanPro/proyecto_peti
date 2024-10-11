@@ -4,7 +4,7 @@ session_start(); // Iniciar la sesión
 require_once '../data/plan.php'; // Asegúrate de incluir la clase que maneja los planes
 
 // Verificar si el plan ha sido creado
-if (!isset($_SESSION['idPlanCreado'])) {
+if (!isset($_SESSION['idPlan'])) {
     // Redirigir al dashboard si no se ha creado un plan
     header("Location: ../presentation/dashboard.php");
     exit;
