@@ -193,4 +193,118 @@ class PlanData
         return $resultado;
     }
 
+    public function actualizarValores($idPlan, $nuevosValores) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para actualizar los valores del plan
+            $query = "UPDATE plan SET valores = :valores WHERE idplan = :idPlan";
+    
+            $stmt = $conn->prepare($query);
+    
+            // Asignar los valores a los parámetros
+            $stmt->bindParam(':valores', $nuevosValores);
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Actualización exitosa
+            } else {
+                return false; // Fallo en la actualización
+            }
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+    
+    public function actualizarObjetivos($idPlan, $objetivosGenerales, $objetivosEspecificos) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para actualizar los objetivos del plan
+            $query = "UPDATE plan SET objetivosgenerales = :objetivosGenerales, objetivosespecificos = :objetivosEspecificos WHERE idplan = :idPlan";
+    
+            $stmt = $conn->prepare($query);
+    
+            // Asignar los valores a los parámetros
+            $stmt->bindParam(':objetivosGenerales', $objetivosGenerales);
+            $stmt->bindParam(':objetivosEspecificos', $objetivosEspecificos);
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Actualización exitosa
+            } else {
+                return false; // Fallo en la actualización
+            }
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }    
+
+    public function obtenerObjetivosPorId($idPlan) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para obtener los objetivos del plan
+            $query = "SELECT objetivosgenerales, objetivosespecificos FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+    
+            // Asignar el valor al parámetro
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Obtener el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Retornar los objetivos como un arreglo si se encuentran, si no, retorna null
+            return $resultado ? $resultado : null;
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }      
+
+    public function obtenerValoresPorId($idPlan) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para obtener los valores del plan
+            $query = "SELECT valores FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+    
+            // Asignar el valor al parámetro
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Obtener el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Retornar los valores si se encuentran, si no, retorna null
+            return $resultado ? $resultado['valores'] : null;
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }
+    
+
 }

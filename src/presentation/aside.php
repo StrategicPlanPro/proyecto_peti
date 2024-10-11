@@ -4,8 +4,8 @@
         <li><a href="datosIniciales2.php">Datos Iniciales</a></li>
         <li><a href="mision.php">Misión</a></li>
         <li><a href="vision.php">Visión</a></li>
-        <li><a href="#">Valores</a></li>
-        <li><a href="#">Objetivos</a></li>
+        <li><a href="valores.php">Valores</a></li>
+        <li><a href="objetivos.php">Objetivos</a></li>
         <li><a href="#">Análisis Interno y Externo</a></li>
         <li><a href="#">Cadena de Valor</a></li>
         <li><a href="#">Matriz de Participación</a></li>
