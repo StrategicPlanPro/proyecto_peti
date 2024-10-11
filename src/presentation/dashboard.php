@@ -150,7 +150,7 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);  // Pasar idusuario
                         <td><?php echo htmlspecialchars($plan['nombreempresa']); ?></td>
                         <td>
                         <button class="button" onclick="redirectToDatosIniciales(<?php echo $plan['idplan']; ?>)">Ver Plan</button>
-                        <button class="button" onclick="window.location.href='../business/procesarPlan.php?id=<?php echo $plan['idplan']; ?>'">Descargar PDF</button>
+                        <button class="button" onclick="window.location.href='../business/descargarPDF.php?id=<?php echo $plan['idplan']; ?>'">Descargar PDF</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
