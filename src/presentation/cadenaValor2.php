@@ -23,6 +23,32 @@ $reflexiones = $planData->obtenerReflexionesPorId($idPlan);
 $debilidades = $planData->obtenerDebilidadesPorId($idPlan);
 $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
 
+// Obtener el autodiagnóstico (autovalor) existente del plan
+$autovalorExistente = $planData->obtenerAutovalorPorId($idPlan);
+
+// Convertir el autovalor JSON existente a un array
+$autovalorArray = $autovalorExistente ? json_decode($autovalorExistente, true) : [];
+
+// Inicializar la variable para almacenar la suma de los valores
+$sumaValoracion = 0;
+
+// Si el formulario fue enviado, procesar las valoraciones
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    for ($i = 1; $i <= 25; $i++) {
+        if (isset($_POST["valoracion_$i"])) {
+            $valoracion = intval($_POST["valoracion_$i"]);  // Convertir el valor a entero
+            $sumaValoracion += $valoracion;  // Sumar el valor a la suma total
+        }
+    }
+    // Aplicar la fórmula 1 - (suma/100)
+    $potencialMejora = 1 - ($sumaValoracion / 100);
+
+    // Convertir el resultado a porcentaje
+    $potencialMejoraPorcentaje = round($potencialMejora * 100, 2); // Redondear a 2 decimales
+
+    // Mostrar el mensaje de potencial de mejora
+    $mensajeMejora = "Potencial de mejora de la cadena de valor interna: {$potencialMejoraPorcentaje}%";
+}
 ?>
 
 <!DOCTYPE html>
@@ -93,6 +119,13 @@ $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
         .strengths-weaknesses div table td {
             height: 40px;
         }
+        .potencial-mejora {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3e7;
+            border: 1px solid #c1e1c1;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -101,7 +134,7 @@ $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
         <h1>Autoevaluación de la Cadena de Valor Interna</h1>
 
         <!-- Formulario para enviar los datos al archivo autodiagnostico.php -->
-        <form method="POST" action="../business/autodiagnostico.php">
+        <form method="POST" action="">
             <!-- Tabla de Autoevaluación -->
             <table>
                 <thead>
@@ -121,11 +154,12 @@ $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
                     <tr>
                         <td>Punto de evaluación <?php echo $i; ?></td>
                         <td>Valoración</td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="0"></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="1"></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="2"></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="3"></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="4"></td>
+                        <!-- Si existe un autovalor previo, marcar la opción seleccionada -->
+                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="0" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 0 ? 'checked' : ''; ?>></td>
+                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="1" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 1 ? 'checked' : ''; ?>></td>
+                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="2" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 2 ? 'checked' : ''; ?>></td>
+                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="3" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 3 ? 'checked' : ''; ?>></td>
+                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="4" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 4 ? 'checked' : ''; ?>></td>
                     </tr>
                     <?php endfor; ?>
                 </tbody>
@@ -134,7 +168,7 @@ $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
             <!-- Área de Observaciones -->
             <div class="observaciones">
                 <label for="observaciones">Reflexione sobre el resultado obtenido:</label>
-                <textarea id="observaciones" name="observaciones" placeholder="Anote aquellas observaciones que puedan ser de su interés."><?php echo $reflexiones; ?></textarea>
+                <textarea id="observaciones" name="reflexiones" placeholder="Anote aquellas observaciones que puedan ser de su interés."><?php echo $reflexiones; ?></textarea>
             </div>
 
             <!-- Fortalezas y Debilidades -->
@@ -175,6 +209,13 @@ $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
                 Guardar Autoevaluación
             </button>
         </form>
+
+        <!-- Mostrar el mensaje de potencial de mejora si se ha calculado -->
+        <?php if (isset($potencialMejoraPorcentaje)): ?>
+            <div class="potencial-mejora">
+                <strong><?php echo $mensajeMejora; ?></strong>
+            </div>
+        <?php endif; ?>
 
     </div>
 

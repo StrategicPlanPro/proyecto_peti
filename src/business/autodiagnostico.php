@@ -16,42 +16,72 @@ $idPlan = $_SESSION['idPlan'];
 // Crear una instancia de PlanData
 $planData = new PlanData();
 
-// Obtener reflexiones, debilidades y fortalezas del plan actual
-$reflexiones = $planData->obtenerReflexionesPorId($idPlan);
-$debilidades = $planData->obtenerDebilidadesPorId($idPlan);
-$fortalezas = $planData->obtenerFortalezasPorId($idPlan);
+// Obtener el autodiagnóstico (autovalor) existente del plan
+$autovalorExistente = $planData->obtenerAutovalorPorId($idPlan);
 
-// Recoger los valores del formulario de autoevaluación
+// Si ya existe un autodiagnóstico guardado, mostrarlo o procesarlo como desees
+if ($autovalorExistente) {
+    echo "Autodiagnóstico existente encontrado.<br>";
+    // Convertir el JSON almacenado en un array para usarlo si es necesario
+    $autovalorExistenteArray = json_decode($autovalorExistente, true);
+} else {
+    echo "No se encontró autodiagnóstico previo. Se procederá a guardar uno nuevo.<br>";
+    $autovalorExistenteArray = []; // Si no existe, se inicializa un array vacío
+}
+
+// Recoger los valores del formulario de autoevaluación (sobreescribiendo o creando nuevos valores)
 $autovalor = [];
 for ($i = 1; $i <= 25; $i++) {
-    // Guardar el valor seleccionado en el array $autovalor
+    // Guardar el valor seleccionado en el array $autovalor o usar el valor existente
     if (isset($_POST["valoracion_$i"])) {
         $autovalor[$i] = $_POST["valoracion_$i"];
     } else {
-        $autovalor[$i] = 0; // Valor por defecto si no se seleccionó una opción
+        // Si no se seleccionó una opción, utilizar el valor existente o asignar 0
+        $autovalor[$i] = isset($autovalorExistenteArray[$i]) ? $autovalorExistenteArray[$i] : 0;
     }
 }
 
 // Convertir el array a formato JSON para almacenarlo en la base de datos
 $autovalorJson = json_encode($autovalor);
 
-// Llamar a la función autodiagnostico para actualizar el valor en la base de datos
-if ($planData->autodiagnostico($autovalorJson, $idPlan)) {
-    // Si la actualización fue exitosa, redirigir a la siguiente página o mostrar un mensaje
+// Llamar a la función actualizarAutovalor para actualizar el valor en la base de datos
+if ($planData->actualizarAutovalor($idPlan, $autovalorJson)) {
     echo "Autodiagnóstico guardado correctamente.<br>";
-    
-    // Mostrar las reflexiones, debilidades y fortalezas obtenidas
-    echo "<h3>Reflexiones:</h3>";
-    echo $reflexiones ? $reflexiones : "No hay reflexiones registradas.<br>";
 
-    echo "<h3>Debilidades:</h3>";
-    echo $debilidades ? $debilidades : "No hay debilidades registradas.<br>";
+    // Actualizar las reflexiones si se enviaron
+    if (isset($_POST['reflexiones'])) {
+        $nuevasReflexiones = $_POST['reflexiones'];
+        if ($planData->actualizarReflexiones($idPlan, $nuevasReflexiones)) {
+            echo "Reflexiones actualizadas correctamente.<br>";
+        } else {
+            echo "Error al actualizar las reflexiones.<br>";
+        }
+    }
 
-    echo "<h3>Fortalezas:</h3>";
-    echo $fortalezas ? $fortalezas : "No hay fortalezas registradas.<br>";
+    // Actualizar las debilidades si se enviaron
+    if (isset($_POST['debilidades'])) {
+        $nuevasDebilidades = $_POST['debilidades'];
+        if ($planData->actualizarDebilidades($idPlan, $nuevasDebilidades)) {
+            echo "Debilidades actualizadas correctamente.<br>";
+        } else {
+            echo "Error al actualizar las debilidades.<br>";
+        }
+    }
 
-    header("Location: ../presentation/matriz.php"); // Redirigir a la siguiente página
+    // Actualizar las fortalezas si se enviaron
+    if (isset($_POST['fortalezas'])) {
+        $nuevasFortalezas = $_POST['fortalezas'];
+        if ($planData->actualizarFortalezas($idPlan, $nuevasFortalezas)) {
+            echo "Fortalezas actualizadas correctamente.<br>";
+        } else {
+            echo "Error al actualizar las fortalezas.<br>";
+        }
+    }
+
+    // Redirigir a la siguiente página
+    header("Location: ../presentation/matriz.php");
     exit();
+
 } else {
     // Si la actualización falla, mostrar un mensaje de error
     echo "Hubo un error al guardar el autodiagnóstico.";
