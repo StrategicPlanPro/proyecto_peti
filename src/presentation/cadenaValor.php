@@ -31,84 +31,12 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadena de Valor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            margin: 50px auto;
-            max-width: 1000px;
-            background-color: white;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            height: 700px; /* Dejamos que el contenedor crezca según el contenido */
-            overflow: hidden;
-        }
-        .form-content, .info-content {
-            padding: 20px;
-        }
-        .form-content {
-            width: 60%;
-            overflow-y: auto;
-            height: auto; /* Cambiamos el valor de '100%' a 'auto' */
-            max-height: 100%; /* Limitar la altura máxima para que no exceda el área visible */
-            padding-bottom: 20px; /* Agregamos espacio debajo del contenido */
-        }
-        .info-content {
-            width: 40%;
-            background: linear-gradient(135deg, #5DBCD2, #f093fb);
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            color: white;
-        }
-        .form-content h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            background-color: #5DBCD2;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-size: 24px;
-        }
-        .content {
-            margin: 20px;
-        }
-        .content p {
-            text-align: justify;
-        }
-        .image {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .image img {
-            max-width: 80%;
-            height: auto;
-            border: 1px solid #ddd;
-            padding: 5px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin-bottom: 10px;
-        }
-        .form-content {
-            height: 100%;
-            overflow-y: scroll;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 
-    <div class="container">
-        <div class="form-content">
+    <div class="container2">
+        <div class="form-content3">
             <h1>Cadena de Valor</h1>
             <div class="content">
                 <p>
@@ -157,8 +85,8 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                 <p>Cada eslabón de la cadena puede ser fuente de ventaja competitiva, ya sea porque se optimice (excelencia en la ejecución de una actividad) y/o mejore su coordinación con otra actividad.</p>
             
                 <!-- Botón Siguiente alineado a la izquierda -->
-                <div style="text-align: left; margin-top: 20px;">
-                    <a href="cadenaValor2.php" style="padding: 10px 20px; background-color: #f76a6a; color: white; border: none; border-radius: 8px; font-size: 16px; text-decoration: none; display: inline-block;">
+                <div class="button-container">
+                    <a href="cadenaValor2.php" class="btn-siguiente">
                         Siguiente
                     </a>
                 </div>

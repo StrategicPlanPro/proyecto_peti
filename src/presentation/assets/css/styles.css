@@ -10,23 +10,108 @@ body {
 
 .container {
     display: flex;
-    width: 1000px;  /* Ajustamos el ancho del contenedor */
+    width: 1000px;  
     background-color: white;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
+.section-title {
+    background-color: #5DBCD2;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 24px;
+}
+
+
+.image {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.image img {
+    max-width: 80%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+}
+
+.button-container {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.image-external {
+    max-width: 35%;
+    height: auto;
+}
+
+.foda-image img {
+    max-width: 40%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+
+.container2 {
+    display: flex;
+    justify-content: space-between;
+    margin: 50px auto;
+    max-width: 1000px; /* Hacemos más pequeño el contenedor */
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    height: 700px; /* Altura limitada para agregar scroll */
+    overflow: hidden;
+}
+
+.box {
+    width: 200px;
+    border: 2px solid #FF6C5B; /* Color ajustado según la imagen */
+    padding: 10px;
+    text-align: center;
+}
+
 .form-content {
-    flex: 2; /* Ocupa más espacio que el aside */
+    flex: 2; 
     padding: 50px;
     background-color: #ffffff;
 }
+
+
 
 .form-content h1 {
     margin-bottom: 40px;
     font-size: 30px;
     color: #333;
+}
+
+/* .form-content h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+} */
+.btn-volver, .btn-guardar , .btn-siguiente{
+    padding: 10px 20px;
+    background-color: #f76a6a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
 }
 
 form {
@@ -66,8 +151,10 @@ form input[type="submit"]:hover {
 }
 
 .info-content {
-    flex: 1;  /* Menor espacio para el aside */
+    flex: 1;  
     background: linear-gradient(135deg, #f76a6a, #f85b6b, #f91c6d);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
     color: white;
     display: flex;
     flex-direction: column;
@@ -75,6 +162,7 @@ form input[type="submit"]:hover {
     align-items: center;
     padding: 50px;
 }
+
 
 .info-content aside {
     color: white;
@@ -107,6 +195,36 @@ form input[type="submit"]:hover {
     color: #ffd1d1; 
 }
 
+.content {
+    margin: 20px;
+}
+
+.content p {
+    text-align: justify;
+}
+
+
+/* Estilo para el scroll */
+.form-content2 {
+    width: 60%;
+    overflow-y: auto;
+    height: auto; /* Cambiamos el valor de '100%' a 'auto' */
+    max-height: 100%; /* Limitar la altura máxima para que no exceda el área visible */
+    padding-bottom: 20px; /* Agregamos espacio debajo del contenido */
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.form-content3 {
+    width: 60%;
+    overflow-y: auto;
+    height: auto; /* Cambiamos el valor de '100%' a 'auto' */
+    max-height: 100%; /* Limitar la altura máxima para que no exceda el área visible */
+    padding-bottom: 20px; /* Agregamos espacio debajo del contenido */
+    height: 100%;
+    overflow-y: scroll;
+}
+
 /* Responsiveness */
 @media (max-width: 768px) {
     .container {
@@ -116,5 +234,12 @@ form input[type="submit"]:hover {
     .form-content,
     .info-content {
         width: 100%;
+        padding: 20px;
     }
+
+    .info-content {
+        padding: 20px;
+    }
+
+    
 }
