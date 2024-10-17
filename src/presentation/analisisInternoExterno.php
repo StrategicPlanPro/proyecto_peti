@@ -31,101 +31,12 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis Interno y Externo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            margin: 50px auto;
-            max-width: 1000px; /* Hacemos más pequeño el contenedor */
-            background-color: white;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            height: 700px; /* Altura limitada para agregar scroll */
-            overflow: hidden;
-        }
-        .form-content, .info-content {
-            padding: 20px;
-        }
-        .form-content {
-            width: 60%;
-            overflow-y: auto; /* Agrega scroll en la parte del contenido */
-        }
-        .info-content {
-            width: 40%;
-            background: linear-gradient(135deg, #5DBCD2, #f093fb);
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            color: white;
-        }
-        .form-content h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            background-color: #5DBCD2;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-size: 24px;
-        }
-        .content {
-            margin: 20px;
-        }
-        .content p {
-            text-align: justify;
-        }
-        .box {
-            width: 200px;
-            border: 2px solid #5DBCD2;
-            padding: 10px;
-            text-align: center;
-        }
-        .image {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .image img {
-            max-width: 40%;
-            height: auto;
-            border: 1px solid #ddd;
-            padding: 5px;
-        }
-        .image-external {
-            max-width: 35%;
-            height: auto;
-        }
-        .foda-image img {
-            max-width: 40%;
-            height: auto;
-            border: 1px solid #ddd;
-            padding: 5px;
-        }
-        .btn-volver {
-            background-color: gray;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-decoration: none;
-            cursor: pointer;
-            margin-top: 20px;
-            display: inline-block;
-        }
-        /* Estilo para el scroll */
-        .form-content {
-            height: 100%;
-            overflow-y: scroll; /* Agregamos el scroll vertical */
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 
-    <div class="container">
-        <div class="form-content">
+    <div class="container2">
+        <div class="form-content2">
             <h1>Análisis Interno y Externo</h1>
             <div class="content">
                 <p>
@@ -187,11 +98,18 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                     <img src="assets/images/FODA.png" alt="Diagrama FODA">
                 </div>
             </div>
+
+            <a href="cadenaValor.php" class="btn-siguiente">Siguiente</a>
+
         </div>
 
         <div class="info-content">
             <?php include('aside.php'); ?>
         </div>
+
+        
     </div>
+
+    
 </body>
 </html>

@@ -39,17 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Misión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        .btn-volver, .btn-guardar {
-            background-color: gray;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-decoration: none;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
