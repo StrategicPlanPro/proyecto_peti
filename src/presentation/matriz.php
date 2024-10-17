@@ -12,10 +12,8 @@ if (!isset($_SESSION['productos'])) {
 }
 
 
-// Obtener el idusuario de la sesión
+// Obtener el idusuario e idplan de la sesión
 $idusuario = $_SESSION['idusuario'];
-
-// Obtener la id del plan de la sesión
 $idplan = $_SESSION['idPlan'];
 
 // Lógica para limpiar productos de la sesión
@@ -27,7 +25,6 @@ if (isset($_POST['limpiarSesion'])) {
 // Lógica para agregar un producto
 if (isset($_POST['agregarProducto'])) {
     $producto = trim($_POST['producto']); // Limpiar espacios innecesarios
-    //$idplan = (int)$_POST['idPlan']; // Obtener y asegurar que sea un entero
 
     try {
         // Preparar la consulta SQL para insertar el nombre del producto y el idplan
@@ -49,7 +46,7 @@ if (isset($_POST['agregarProducto'])) {
     }
 }
 
-// Lógica para eliminar un producto (opcional)
+// Lógica para eliminar un producto 
 if (isset($_POST['eliminarProducto'])) {
     $index = $_POST['index'];
     $productoData = $_SESSION['productos'][$index];
@@ -69,10 +66,27 @@ if (isset($_POST['eliminarProducto'])) {
     }
 }
 
-// Inicializar ventas y totalVentas
-$ventas = isset($_POST['ventas']) ? $_POST['ventas'] : [];
-$totalVentas = array_sum($ventas); // Calcula la suma de las ventas solo si se ha enviado el formulario
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
+    $ventas = $_POST['ventas'];
+    $totalVentas = array_sum($ventas);
+
+    try {
+        foreach ($ventas as $index => $venta) {
+            $producto = $_SESSION['productos'][$index]['nombre'];
+
+            // Actualizar la columna de ventas en la base de datos
+            $stmt = $pdo->prepare("UPDATE producto SET ventas = :ventas WHERE nombre = :nombre AND idplan = :idplan");
+            $stmt->bindParam(':ventas', $venta, PDO::PARAM_INT);
+            $stmt->bindParam(':nombre', $producto);
+            $stmt->bindParam(':idplan', $idplan);
+            $stmt->execute();
+        }
+        echo "Ventas guardadas correctamente.";
+    } catch (PDOException $e) {
+        echo "Error al guardar ventas: " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -231,7 +245,7 @@ $totalVentas = array_sum($ventas); // Calcula la suma de las ventas solo si se h
     <ul>
         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
             <li>
-                <?php echo htmlspecialchars($producto['nombre']); ?> ?>
+                <?php echo htmlspecialchars($producto['nombre']); ?> 
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="index" value="<?php echo $index; ?>">
                     <button type="submit" name="eliminarProducto">Eliminar</button>
@@ -243,36 +257,35 @@ $totalVentas = array_sum($ventas); // Calcula la suma de las ventas solo si se h
     <?php if (count($_SESSION['productos']) > 0): ?>
         <div class="table-container">
         <form method="POST">
-        <h1>Previsión de Ventas</h1>
-        <table>
-            <tr class="header-green">
-                <th>Productos</th>
-                <th>Ventas</th>
-                <th>% Ventas Total</th>
-            </tr>
-            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                <tr class="product-<?php echo ($index + 1); ?>">
-                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Cambiado para acceder al nombre -->
-                    <td>
-                        <input type="number" step="0.01" name="ventas[<?php echo $index; ?>]" 
-                            value="<?php echo isset($ventas[$index]) ? $ventas[$index] : 0; ?>" required>
-                    </td>
-                    <td>
-                        <?php 
-                        // Calcular el porcentaje solo después de haber calculado $totalVentas
-                        $porcentaje = $totalVentas > 0 ? ($ventas[$index] / $totalVentas) * 100 : 0; 
-                        echo number_format($porcentaje, 2) . '%'; 
-                        ?>
-                    </td>
+            <h1>Previsión de Ventas</h1>
+            <table>
+                <tr class="header-green">
+                    <th>Productos</th>
+                    <th>Ventas</th>
+                    <th>% Ventas Total</th>
                 </tr>
-            <?php endforeach; ?>
-            <tr class="header-gray">
-                <td>Total</td>
-                <td><?php echo number_format($totalVentas, 2); ?></td> <!-- Ahora esto no debería dar error -->
-                <td>100%</td>
-            </tr>
-        </table>
-        <button type="submit">Calcular</button>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <tr class="product-<?php echo ($index + 1); ?>">
+                        <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
+                        <td>
+                            <input type="number" step="10" name="ventas[<?php echo $index; ?>]" 
+                                value="<?php echo isset($ventas[$index]) ? $ventas[$index] : 0; ?>" required>
+                        </td>
+                        <td>
+                            <?php 
+                            $porcentaje = $totalVentas > 0 ? ($ventas[$index] / $totalVentas) * 100 : 0;
+                            echo number_format($porcentaje, 2) . '%'; 
+                            ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <tr class="header-gray">
+                    <td>Total</td>
+                    <td><?php echo number_format($totalVentas, 2); ?></td>
+                    <td>100%</td>
+                </tr>
+            </table>
+            <button type="submit">Ingresar ventas</button>
         </form>
         <h2>Tasas de Crecimiento del Mercado (TCM)</h2>
         <table>
