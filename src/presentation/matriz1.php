@@ -1,3 +1,30 @@
+<?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: login.php");
+    exit();
+}
+
+include_once '../data/plan.php';
+
+// Obtener el idusuario de la sesión
+$idusuario = $_SESSION['idusuario'];
+
+// Obtener la id del plan de la sesión
+$idPlan = $_SESSION['idPlan'];
+
+// Crear una instancia de PlanData
+$planData = new PlanData();
+
+// Obtener el plan utilizando ambos IDs
+$plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+
+?>
+
 <!doctype html>
 <html lang="es">
 <head>

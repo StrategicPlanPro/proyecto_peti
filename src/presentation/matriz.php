@@ -1,33 +1,70 @@
 <?php
 session_start();
+require_once __DIR__ . '/../data/neonConnection.php'; // Importar conexión a la base de datos
 
-// Inicializar la sesión de productos
+// Crear la instancia de la conexión
+$conexion = new Conexion();
+$pdo = $conexion->getConnection();
+
+// Inicializar el array de productos en la sesión
 if (!isset($_SESSION['productos'])) {
     $_SESSION['productos'] = [];
 }
 
-// Agregar productos
+
+// Obtener el idusuario de la sesión
+$idusuario = $_SESSION['idusuario'];
+
+// Obtener la id del plan de la sesión
+$idplan = $_SESSION['idPlan'];
+
+
+
+
+
+
+// Lógica para agregar un producto
 if (isset($_POST['agregarProducto'])) {
-    $nuevoProducto = $_POST['producto'];
-    if (!empty($nuevoProducto)) {
-        $_SESSION['productos'][] = $nuevoProducto;
+    $producto = trim($_POST['producto']); // Limpiar espacios innecesarios
+    //$idplan = (int)$_POST['idPlan']; // Obtener y asegurar que sea un entero
+
+    try {
+        // Preparar la consulta SQL para insertar el nombre del producto y el idplan
+        $stmt = $pdo->prepare("INSERT INTO producto (nombre, idplan) VALUES (:nombre, :idplan)");
+        $stmt->bindParam(':nombre', $producto);
+        $stmt->bindParam(':idplan', $idplan);
+
+        // Ejecutar la consulta
+        if ($stmt->execute()) {
+            // Guardar en la sesión, incluyendo el idplan
+            $_SESSION['productos'][] = [
+                'nombre' => $producto,
+                'idplan' => $idplan
+            ];
+            echo "Producto agregado correctamente.";
+        }
+    } catch (PDOException $e) {
+        echo "Error al agregar producto: " . $e->getMessage();
     }
 }
 
-// Eliminar productos
+// Lógica para eliminar un producto (opcional)
 if (isset($_POST['eliminarProducto'])) {
     $index = $_POST['index'];
-    unset($_SESSION['productos'][$index]);
-    $_SESSION['productos'] = array_values($_SESSION['productos']); // Reindexar el array
-}
+    $productoData = $_SESSION['productos'][$index];
 
-// Calcular ventas
-$totalVentas = 0;
-$ventas = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
-    $ventas = $_POST['ventas'];
-    foreach ($ventas as $venta) {
-        $totalVentas += $venta;
+    try {
+        // Eliminar el producto de la base de datos
+        $stmt = $pdo->prepare("DELETE FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+        $stmt->bindParam(':nombre', $productoData['nombre']);
+        $stmt->bindParam(':idplan', $productoData['idplan']);
+        $stmt->execute();
+
+        // Eliminar de la sesión
+        unset($_SESSION['productos'][$index]);
+        $_SESSION['productos'] = array_values($_SESSION['productos']); // Reindexar
+    } catch (PDOException $e) {
+        echo "Error al eliminar producto: " . $e->getMessage();
     }
 }
 ?>
@@ -184,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
     <ul>
         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
             <li>
-                <?php echo $producto; ?>
+                <?php echo htmlspecialchars($producto); ?>
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="index" value="<?php echo $index; ?>">
                     <button type="submit" name="eliminarProducto">Eliminar</button>
