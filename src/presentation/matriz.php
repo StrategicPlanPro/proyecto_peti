@@ -1,44 +1,72 @@
 <?php
 session_start();
-require_once __DIR__ . '/../data/neonConnection.php'; // Importar conexión a la base de datos
+require_once __DIR__ . '/../data/neonConnection.php'; // Conexión a la base de datos
 
-// Crear la instancia de la conexión
+// Instancia de la conexión
 $conexion = new Conexion();
 $pdo = $conexion->getConnection();
 
-// Inicializar el array de productos en la sesión
+// Inicializar productos si no están definidos en la sesión
 if (!isset($_SESSION['productos'])) {
     $_SESSION['productos'] = [];
 }
 
+// Obtener idusuario e idplan
+$idusuario = $_SESSION['idusuario'] ?? null;
+$idplan = $_SESSION['idPlan'] ?? null;
 
-// Obtener el idusuario e idplan de la sesión
-$idusuario = $_SESSION['idusuario'];
-$idplan = $_SESSION['idPlan'];
-
-// Lógica para limpiar productos de la sesión
+// Limpiar productos de la sesión
 if (isset($_POST['limpiarSesion'])) {
-    // Solo limpiamos los productos de la sesión, sin afectar la base de datos
     $_SESSION['productos'] = [];
 }
 
-// Lógica para agregar un producto
-if (isset($_POST['agregarProducto'])) {
-    $producto = trim($_POST['producto']); // Limpiar espacios innecesarios
+function obtenerVentas($pdo, $nombre, $idplan) {
+    $stmt = $pdo->prepare("SELECT ventas FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+    $stmt->execute([':nombre' => $nombre, ':idplan' => $idplan]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? (int) $result['ventas'] : 0;
+}
 
+// Obtener ventas de los productos en la sesión
+$ventas = [];
+$totalVentas = 0;
+
+foreach ($_SESSION['productos'] as $index => $producto) {
+    $ventas[$index] = obtenerVentas($pdo, $producto['nombre'], $idplan);
+    $totalVentas += $ventas[$index];
+}
+
+// Guardar ventas si se envía el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
+    guardarVentas($pdo, $_POST['ventas'], $idplan);
+}
+
+// Función para guardar ventas
+function guardarVentas($pdo, $ventas, $idplan) {
     try {
-        // Preparar la consulta SQL para insertar el nombre del producto y el idplan
-        $stmt = $pdo->prepare("INSERT INTO producto (nombre, idplan) VALUES (:nombre, :idplan)");
-        $stmt->bindParam(':nombre', $producto);
-        $stmt->bindParam(':idplan', $idplan);
+        foreach ($ventas as $index => $venta) {
+            $producto = $_SESSION['productos'][$index]['nombre'];
+            $stmt = $pdo->prepare("UPDATE producto SET ventas = :ventas WHERE nombre = :nombre AND idplan = :idplan");
+            $stmt->execute([':ventas' => $venta, ':nombre' => $producto, ':idplan' => $idplan]);
+        }
+        echo "Ventas guardadas correctamente.";
+    } catch (PDOException $e) {
+        echo "Error al guardar ventas: " . $e->getMessage();
+    }
+}
 
-        // Ejecutar la consulta
-        if ($stmt->execute()) {
-            // Guardar en la sesión, incluyendo el idplan
-            $_SESSION['productos'][] = [
-                'nombre' => $producto,
-                'idplan' => $idplan
-            ];
+// Agregar producto
+if (isset($_POST['agregarProducto'])) {
+    $producto = trim($_POST['producto']);
+    agregarProducto($pdo, $producto, $idplan);
+}
+
+function agregarProducto($pdo, $producto, $idplan) {
+    
+    try {
+        $stmt = $pdo->prepare("INSERT INTO producto (nombre, idplan) VALUES (:nombre, :idplan)");
+        if ($stmt->execute([':nombre' => $producto, ':idplan' => $idplan])) {
+            $_SESSION['productos'][] = ['nombre' => $producto, 'idplan' => $idplan];
             echo "Producto agregado correctamente.";
         }
     } catch (PDOException $e) {
@@ -46,19 +74,17 @@ if (isset($_POST['agregarProducto'])) {
     }
 }
 
-// Lógica para eliminar un producto 
+// Eliminar producto
 if (isset($_POST['eliminarProducto'])) {
     $index = $_POST['index'];
+    eliminarProducto($pdo, $index);
+}
+
+function eliminarProducto($pdo, $index) {
     $productoData = $_SESSION['productos'][$index];
-
     try {
-        // Eliminar el producto de la base de datos
         $stmt = $pdo->prepare("DELETE FROM producto WHERE nombre = :nombre AND idplan = :idplan");
-        $stmt->bindParam(':nombre', $productoData['nombre']);
-        $stmt->bindParam(':idplan', $productoData['idplan']);
-        $stmt->execute();
-
-        // Eliminar de la sesión
+        $stmt->execute([':nombre' => $productoData['nombre'], ':idplan' => $productoData['idplan']]);
         unset($_SESSION['productos'][$index]);
         $_SESSION['productos'] = array_values($_SESSION['productos']); // Reindexar
     } catch (PDOException $e) {
@@ -66,27 +92,43 @@ if (isset($_POST['eliminarProducto'])) {
     }
 }
 
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
-    $ventas = $_POST['ventas'];
-    $totalVentas = array_sum($ventas);
-
+// Función para guardar Tasas de Crecimiento del Mercado (TCM)
+function guardarTcm($pdo, $tsc, $idplan) {
     try {
-        foreach ($ventas as $index => $venta) {
+        foreach ($tsc as $index => $tasa) {
             $producto = $_SESSION['productos'][$index]['nombre'];
-
-            // Actualizar la columna de ventas en la base de datos
-            $stmt = $pdo->prepare("UPDATE producto SET ventas = :ventas WHERE nombre = :nombre AND idplan = :idplan");
-            $stmt->bindParam(':ventas', $venta, PDO::PARAM_INT);
-            $stmt->bindParam(':nombre', $producto);
-            $stmt->bindParam(':idplan', $idplan);
-            $stmt->execute();
+            // Actualiza los campos tsc1, tsc2, tsc3, tsc4 según el índice
+            $stmt = $pdo->prepare("UPDATE producto SET tsc1 = :tsc1, tsc2 = :tsc2, tsc3 = :tsc3, tsc4 = :tsc4 WHERE nombre = :nombre AND idplan = :idplan");
+            $stmt->execute([
+                ':tsc1' => $tasa[0],
+                ':tsc2' => $tasa[1],
+                ':tsc3' => $tasa[2],
+                ':tsc4' => $tasa[3],
+                ':nombre' => $producto,
+                ':idplan' => $idplan
+            ]);
         }
-        echo "Ventas guardadas correctamente.";
+        echo "Tasas de crecimiento guardadas correctamente.";
     } catch (PDOException $e) {
-        echo "Error al guardar ventas: " . $e->getMessage();
+        echo "Error al guardar tasas de crecimiento: " . $e->getMessage();
     }
 }
+
+// Guardar TCM si se envía el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
+    $tcm = [];
+    for ($i = 0; $i < count($_SESSION['productos']); $i++) {
+        $tcm[$i] = [
+            $_POST['tsc1'][$i] ?? 0, // TCM para 2019-2020
+            $_POST['tsc2'][$i] ?? 0, // TCM para 2020-2021
+            $_POST['tsc3'][$i] ?? 0, // TCM para 2021-2022
+            $_POST['tsc4'][$i] ?? 0  // TCM para 2022-2023
+        ];
+    }
+    guardarTcm($pdo, $tcm, $idplan);
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -234,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
     <form method="POST">
         <label>Nombre del Producto:</label>
         <input type="text" name="producto" required>
+        
         <button type="submit" name="agregarProducto">Agregar Producto</button>
     </form>
 
@@ -245,9 +288,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
     <ul>
         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
             <li>
-                <?php echo htmlspecialchars($producto['nombre']); ?> 
+                <?= htmlspecialchars($producto['nombre']); ?>
                 <form method="POST" style="display:inline;">
-                    <input type="hidden" name="index" value="<?php echo $index; ?>">
+                    <input type="hidden" name="index" value="<?= $index; ?>">
                     <button type="submit" name="eliminarProducto">Eliminar</button>
                 </form>
             </li>
@@ -264,21 +307,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
                     <th>Ventas</th>
                     <th>% Ventas Total</th>
                 </tr>
+                
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                     <tr class="product-<?php echo ($index + 1); ?>">
                         <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
                         <td>
                             <input type="number" step="10" name="ventas[<?php echo $index; ?>]" 
-                                value="<?php echo isset($ventas[$index]) ? $ventas[$index] : 0; ?>" required>
+                                value="<?php echo $ventas[$index]; ?>" required>
                         </td>
                         <td>
                             <?php 
-                            $porcentaje = $totalVentas > 0 ? ($ventas[$index] / $totalVentas) * 100 : 0;
+                            try {
+                                $porcentaje = ($totalVentas > 0 && isset($ventas[$index]) && $ventas[$index] !== null) 
+                                    ? ($ventas[$index] / $totalVentas) * 100 
+                                    : 0;
+                            } catch (Exception $e) {
+                                $porcentaje = 0; // Si ocurre cualquier error, asignamos 0 al porcentaje
+                            }
                             echo number_format($porcentaje, 2) . '%'; 
                             ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
+                
                 <tr class="header-gray">
                     <td>Total</td>
                     <td><?php echo number_format($totalVentas, 2); ?></td>
@@ -288,38 +339,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
             <button type="submit">Ingresar ventas</button>
         </form>
         <h2>Tasas de Crecimiento del Mercado (TCM)</h2>
-        <table>
-            <tr class="header-green">
-                <th>Períodos</th>
-                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Mostrar el nombre del producto -->
-                <?php endforeach; ?>
-            </tr>
-            <tr class="header-gray">
-                <th>2019 - 2020</th>
-                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
-                <?php endforeach; ?>
-            </tr>
-            <tr class="header-gray">
-                <th>2020 - 2021</th>
-                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
-                <?php endforeach; ?>
-            </tr>
-            <tr class="header-gray">
-                <th>2021 - 2022</th>
-                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
-                <?php endforeach; ?>
-            </tr>
-            <tr class="header-gray">
-                <th>2022 - 2023</th>
-                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
-                <?php endforeach; ?>
-            </tr>
-        </table>
+        <form action="" method="POST"> <!-- Cambia la acción del formulario para que apunte al mismo archivo -->
+            <table>
+                <tr class="header-green">
+                    <th>Períodos</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <th><?php echo htmlspecialchars($producto['nombre']); ?></th>
+                    <?php endforeach; ?>
+                </tr>
+                <tr class="header-gray">
+                    <th>2019 - 2020</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="tsc1[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+                <tr class="header-gray">
+                    <th>2020 - 2021</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="tsc2[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+                <tr class="header-gray">
+                    <th>2021 - 2022</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="tsc3[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+                <tr class="header-gray">
+                    <th>2022 - 2023</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="tsc4[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+            </table>
+            <button type="submit" name="guardarTcm">Ingresar TCM</button> <!-- Asegúrate de incluir el nombre del botón -->
+        </form>
+
 
         <h2>Participación Relativa del Mercado (PRM)</h2>
         <table>
@@ -334,7 +397,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ventas'])) {
                     <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Acceder al nombre del producto -->
                     <td>0.00%</td>
                     <td>0.00</td>
-                    <td><?php echo $totalVentas > 0 ? number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%' : '0.00%'; ?></td>
+                    <td><?php 
+                        try {
+                            if ($totalVentas > 0 && isset($ventas[$index]) && $ventas[$index] !== null) {
+                                echo number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%';
+                            } else {
+                                echo '0.00%';
+                            }
+                        } catch (Exception $e) {
+                            echo '0.00%'; // Si ocurre un error, mostramos 0.00%
+                        }                   
+                    ?></td>
                 </tr>
             <?php endforeach; ?>
         </table>
