@@ -218,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <!-- Botón "Siguiente" para redirigir a matriz.php -->
-        <form action="matriz.php" method="POST">
+        <form action="matriz1.php" method="POST">
             <button type="submit" class="boton-siguiente">Siguiente</button>
         </form>
 
