@@ -92,7 +92,7 @@
         </div>
 
         <div class="btn-container">
-            <a href="matriz2.php" class="btn">Autodiagnóstico BCG</a>
+            <a href="matriz.php" class="btn">Autodiagnóstico BCG</a>
         </div>
     </div>
 
