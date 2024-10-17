@@ -18,10 +18,11 @@ $idusuario = $_SESSION['idusuario'];
 // Obtener la id del plan de la sesión
 $idplan = $_SESSION['idPlan'];
 
-
-
-
-
+// Lógica para limpiar productos de la sesión
+if (isset($_POST['limpiarSesion'])) {
+    // Solo limpiamos los productos de la sesión, sin afectar la base de datos
+    $_SESSION['productos'] = [];
+}
 
 // Lógica para agregar un producto
 if (isset($_POST['agregarProducto'])) {
@@ -67,6 +68,11 @@ if (isset($_POST['eliminarProducto'])) {
         echo "Error al eliminar producto: " . $e->getMessage();
     }
 }
+
+// Inicializar ventas y totalVentas
+$ventas = isset($_POST['ventas']) ? $_POST['ventas'] : [];
+$totalVentas = array_sum($ventas); // Calcula la suma de las ventas solo si se ha enviado el formulario
+
 ?>
 
 <!DOCTYPE html>
@@ -217,11 +223,15 @@ if (isset($_POST['eliminarProducto'])) {
         <button type="submit" name="agregarProducto">Agregar Producto</button>
     </form>
 
+    <form method="POST">
+        <button type="submit" name="limpiarSesion">Limpiar Productos de Sesión</button>
+    </form>
+
     <h2>Productos Ingresados</h2>
     <ul>
         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
             <li>
-                <?php echo htmlspecialchars($producto); ?>
+                <?php echo htmlspecialchars($producto['nombre']); ?> ?>
                 <form method="POST" style="display:inline;">
                     <input type="hidden" name="index" value="<?php echo $index; ?>">
                     <button type="submit" name="eliminarProducto">Eliminar</button>
@@ -232,65 +242,89 @@ if (isset($_POST['eliminarProducto'])) {
 
     <?php if (count($_SESSION['productos']) > 0): ?>
         <div class="table-container">
-            <form method="POST">
-                <h1>Previsión de Ventas</h1>
-                <table>
-                    <tr class="header-green">
-                        <th>Productos</th>
-                        <th>Ventas</th>
-                        <th>% Ventas Total</th>
-                    </tr>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <tr class="product-<?php echo ($index + 1); ?>">
-                            <td><?php echo $producto; ?></td>
-                            <td><input type="number" step="0.01" name="ventas[<?php echo $index; ?>]" value="<?php echo isset($ventas[$index]) ? $ventas[$index] : 0; ?>" required></td>
-                            <td><?php echo $totalVentas > 0 ? number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%' : '0.00%'; ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <tr class="header-gray">
-                        <td>Total</td>
-                        <td><?php echo number_format($totalVentas, 2); ?></td>
-                        <td>100%</td>
-                    </tr>
-                </table>
-
-                <button type="submit">Calcular</button>
-            </form>
-
-            <h2>Tasas de Crecimiento del Mercado (TCM)</h2>
-            <table>
-                <tr class="header-green">
-                    <th>Períodos</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <th><?php echo $producto; ?></th>
-                    <?php endforeach; ?>
+        <form method="POST">
+        <h1>Previsión de Ventas</h1>
+        <table>
+            <tr class="header-green">
+                <th>Productos</th>
+                <th>Ventas</th>
+                <th>% Ventas Total</th>
+            </tr>
+            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                <tr class="product-<?php echo ($index + 1); ?>">
+                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Cambiado para acceder al nombre -->
+                    <td>
+                        <input type="number" step="0.01" name="ventas[<?php echo $index; ?>]" 
+                            value="<?php echo isset($ventas[$index]) ? $ventas[$index] : 0; ?>" required>
+                    </td>
+                    <td>
+                        <?php 
+                        // Calcular el porcentaje solo después de haber calculado $totalVentas
+                        $porcentaje = $totalVentas > 0 ? ($ventas[$index] / $totalVentas) * 100 : 0; 
+                        echo number_format($porcentaje, 2) . '%'; 
+                        ?>
+                    </td>
                 </tr>
-                <tr class="header-gray">
-                    <th>2012</th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </table>
-
-            <h2>Participación Relativa del Mercado (PRM)</h2>
-            <table>
-                <tr class="header-red">
-                    <th>Producto</th>
-                    <th>TCM</th>
-                    <th>PRM</th>
-                    <th>% SVTAS</th>
-                </tr>
+            <?php endforeach; ?>
+            <tr class="header-gray">
+                <td>Total</td>
+                <td><?php echo number_format($totalVentas, 2); ?></td> <!-- Ahora esto no debería dar error -->
+                <td>100%</td>
+            </tr>
+        </table>
+        <button type="submit">Calcular</button>
+        </form>
+        <h2>Tasas de Crecimiento del Mercado (TCM)</h2>
+        <table>
+            <tr class="header-green">
+                <th>Períodos</th>
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <tr class="product-<?php echo ($index + 1); ?>">
-                        <td><?php echo $producto; ?></td>
-                        <td>0.00%</td>
-                        <td>0.00</td>
-                        <td><?php echo $totalVentas > 0 ? number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%' : '0.00%'; ?></td>
-                    </tr>
+                    <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Mostrar el nombre del producto -->
                 <?php endforeach; ?>
-            </table>
+            </tr>
+            <tr class="header-gray">
+                <th>2019 - 2020</th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
+                <?php endforeach; ?>
+            </tr>
+            <tr class="header-gray">
+                <th>2020 - 2021</th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
+                <?php endforeach; ?>
+            </tr>
+            <tr class="header-gray">
+                <th>2021 - 2022</th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
+                <?php endforeach; ?>
+            </tr>
+            <tr class="header-gray">
+                <th>2022 - 2023</th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td></td> <!-- Aquí puedes agregar los datos relevantes para el período -->
+                <?php endforeach; ?>
+            </tr>
+        </table>
+
+        <h2>Participación Relativa del Mercado (PRM)</h2>
+        <table>
+            <tr class="header-red">
+                <th>Producto</th>
+                <th>TCM</th>
+                <th>PRM</th>
+                <th>% SVTAS</th>
+            </tr>
+            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                <tr class="product-<?php echo ($index + 1); ?>">
+                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Acceder al nombre del producto -->
+                    <td>0.00%</td>
+                    <td>0.00</td>
+                    <td><?php echo $totalVentas > 0 ? number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%' : '0.00%'; ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
 
             <h2>Niveles de Venta de los Competidores</h2>
             <table>
