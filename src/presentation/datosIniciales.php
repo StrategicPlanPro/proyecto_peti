@@ -1,6 +1,17 @@
+<?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -1,54 +1,35 @@
 <?php
-// Iniciar sesión
-session_start();
 
-// Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
-    // Redirigir al usuario a la página de inicio de sesión
-    header("Location: login.php");
-    exit();
+require_once('../data/plan.php'); // Asegúrate de que esto apunte al archivo correcto donde tienes la clase PlanData
+
+session_start();
+if (!isset($_SESSION['idPlan'])) {
+    die("ID de plan no encontrado en la sesión.");
 }
 
-include_once '../data/plan.php';
-
-// Obtener el idusuario de la sesión
-$idusuario = $_SESSION['idusuario'];
 $idPlan = $_SESSION['idPlan'];
 
-// Crear una instancia de PlanData
+// Instancia de la clase que maneja los planes
 $planData = new PlanData();
 
-// Obtener reflexiones, debilidades y fortalezas del plan actual
-$reflexiones = $planData->obtenerReflexionesPorId($idPlan);
-$debilidades = $planData->obtenerDebilidadesPorId($idPlan);
-$fortalezas = $planData->obtenerFortalezasPorId($idPlan);
+// Obtener el autovalor guardado en la base de datos
+$autovalorGuardado = $planData->obtenerAutovalorPorId($idPlan);
 
-// Obtener el autodiagnóstico (autovalor) existente del plan
-$autovalorExistente = $planData->obtenerAutovalorPorId($idPlan);
+// Obtener las reflexiones guardadas en la base de datos
+$reflexionesGuardadas = $planData->obtenerReflexionesPorId($idPlan);
 
-// Convertir el autovalor JSON existente a un array
-$autovalorArray = $autovalorExistente ? json_decode($autovalorExistente, true) : [];
+// Obtener las fortalezas guardadas
+$fortalezasGuardadas = $planData->obtenerFortalezasPorId($idPlan);
 
-// Inicializar la variable para almacenar la suma de los valores
-$sumaValoracion = 0;
+// Obtener las debilidades guardadas
+$debilidadesGuardadas = $planData->obtenerDebilidadesPorId($idPlan);
 
-// Si el formulario fue enviado, procesar las valoraciones
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    for ($i = 1; $i <= 25; $i++) {
-        if (isset($_POST["valoracion_$i"])) {
-            $valoracion = intval($_POST["valoracion_$i"]);  // Convertir el valor a entero
-            $sumaValoracion += $valoracion;  // Sumar el valor a la suma total
-        }
-    }
-    // Aplicar la fórmula 1 - (suma/100)
-    $potencialMejora = 1 - ($sumaValoracion / 100);
+// Convertimos el autovalor de cadena a un array
+$autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fill(0, 25, 0); // Si no hay valor guardado, usamos 0 por defecto
 
-    // Convertir el resultado a porcentaje
-    $potencialMejoraPorcentaje = round($potencialMejora * 100, 2); // Redondear a 2 decimales
+// Mostrar el potencial de mejora si está disponible
+$potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMejora'] : null;
 
-    // Mostrar el mensaje de potencial de mejora
-    $mensajeMejora = "Potencial de mejora de la cadena de valor interna: {$potencialMejoraPorcentaje}%";
-}
 ?>
 
 <!DOCTYPE html>
@@ -56,172 +37,152 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadena de Valor 2</title>
+    <title>Autodiagnóstico de la Cadena de Valor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
-            width: 100%;
-            margin: 0 auto;
-            background-color: #fff;
+            background-color: white;
             padding: 20px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 20px auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
         }
-        table th, table td {
+        th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
         }
-        table th {
+        th {
             background-color: #f2f2f2;
-            font-weight: bold;
         }
-        .observaciones {
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .result {
+            font-size: 18px;
+            color: #333;
             margin-bottom: 20px;
         }
-        .observaciones textarea {
+        .textarea-title {
+            font-size: 16px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .reflexion-textarea, .fortalezas-textarea, .debilidades-textarea {
             width: 100%;
             height: 100px;
             padding: 10px;
+            margin-top: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .strengths-weaknesses {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        .strengths-weaknesses div {
-            width: 48%;
-        }
-        .strengths-weaknesses div table {
-            width: 100%;
-        }
-        .strengths-weaknesses div table th {
-            text-align: left;
-            background-color: #e2e2e2;
-        }
-        .strengths-weaknesses div table td {
-            height: 40px;
-        }
-        .potencial-mejora {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e7f3e7;
-            border: 1px solid #c1e1c1;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Autoevaluación de la Cadena de Valor Interna</h1>
+        <h2 class="center">Autodiagnóstico de la Cadena de Valor</h2>
 
-        <!-- Formulario para enviar los datos al archivo autodiagnostico.php -->
-        <form method="POST" action="">
-            <!-- Tabla de Autoevaluación -->
+        <!-- Mostrar el potencial de mejora si está disponible -->
+        <?php if ($potencialMejora !== null): ?>
+            <div class="result center">
+                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
+            </div>
+            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
+        <?php endif; ?>
+
+        <form method="POST" action="autodiagnostico.php">
             <table>
                 <thead>
                     <tr>
                         <th>Autodiagnóstico de la Cadena de Valor Interna</th>
-                        <th>Valoración</th>
-                        <th>0</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
+                        <th>En total en desacuerdo</th>
+                        <th>No está de acuerdo</th>
+                        <th>Está de acuerdo</th>
+                        <th>Está bastante de acuerdo</th>
+                        <th>En total acuerdo</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Añadir las filas de preguntas de autoevaluación aquí -->
-                    <?php for($i = 1; $i <= 25; $i++): ?>
-                    <tr>
-                        <td>Punto de evaluación <?php echo $i; ?></td>
-                        <td>Valoración</td>
-                        <!-- Si existe un autovalor previo, marcar la opción seleccionada -->
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="0" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 0 ? 'checked' : ''; ?>></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="1" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 1 ? 'checked' : ''; ?>></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="2" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 2 ? 'checked' : ''; ?>></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="3" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 3 ? 'checked' : ''; ?>></td>
-                        <td><input type="radio" name="valoracion_<?php echo $i; ?>" value="4" <?php echo isset($autovalorArray[$i]) && $autovalorArray[$i] == 4 ? 'checked' : ''; ?>></td>
-                    </tr>
-                    <?php endfor; ?>
+                    <?php 
+                    for ($i = 1; $i <= 25; $i++) {
+                        // Obtener el valor seleccionado de autovalores
+                        $valorSeleccionado = isset($autovalores[$i - 1]) ? $autovalores[$i - 1] : 0;
+
+                        echo "<tr>
+                            <td>Punto de evaluación $i</td>
+                            <td><input type='radio' name='punto_$i' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_$i' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_$i' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_$i' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_$i' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
+                        </tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
 
-            <!-- Área de Observaciones -->
-            <div class="observaciones">
-                <label for="observaciones">Reflexione sobre el resultado obtenido:</label>
-                <textarea id="observaciones" name="reflexiones" placeholder="Anote aquellas observaciones que puedan ser de su interés."><?php echo $reflexiones; ?></textarea>
+            <!-- Botón para guardar la autoevaluación -->
+            <div class="center">
+                <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
             </div>
 
-            <!-- Fortalezas y Debilidades -->
-            <div class="strengths-weaknesses">
-                <div class="fortalezas">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>FORTALEZAS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><textarea name="fortalezas" rows="3" style="width: 100%;" placeholder="Ingrese las fortalezas..."><?php echo $fortalezas; ?></textarea></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="debilidades">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>DEBILIDADES</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><textarea name="debilidades" rows="3" style="width: 100%;" placeholder="Ingrese las debilidades..."><?php echo $debilidades; ?></textarea></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Título y Cuadro de texto para reflexiones -->
+            <div class="center">
+                <label class="textarea-title">Reflexiones</label>
+                <textarea class="reflexion-textarea" name="reflexion" placeholder="Escribe tus reflexiones sobre el autodiagnóstico..."><?php echo isset($reflexionesGuardadas) ? htmlspecialchars($reflexionesGuardadas) : ''; ?></textarea>
             </div>
 
-            <!-- Botón para enviar el formulario -->
-            <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px;">
-                Guardar Autoevaluación
-            </button>
+            <!-- Título y Cuadro de texto para fortalezas -->
+            <div class="center">
+                <label class="textarea-title">Fortalezas</label>
+                <textarea class="fortalezas-textarea" name="fortalezas" placeholder="Escribe las fortalezas..."><?php echo isset($fortalezasGuardadas) ? htmlspecialchars($fortalezasGuardadas) : ''; ?></textarea>
+            </div>
+
+            <!-- Título y Cuadro de texto para debilidades -->
+            <div class="center">
+                <label class="textarea-title">Debilidades</label>
+                <textarea class="debilidades-textarea" name="debilidades" placeholder="Escribe las debilidades..."><?php echo isset($debilidadesGuardadas) ? htmlspecialchars($debilidadesGuardadas) : ''; ?></textarea>
+            </div>
+
+            <!-- Botón para guardar las reflexiones, fortalezas y debilidades -->
+            <div class="center">
+                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
+            </div>
         </form>
-
-        <!-- Mostrar el mensaje de potencial de mejora si se ha calculado -->
-        <?php if (isset($potencialMejoraPorcentaje)): ?>
-            <div class="potencial-mejora">
-                <strong><?php echo $mensajeMejora; ?></strong>
-            </div>
-        <?php endif; ?>
-
-        <!-- Botón "Siguiente" para redirigir a matriz.php -->
-        <form action="matriz.php" method="POST">
-            <button type="submit" class="boton-siguiente">Siguiente</button>
-        </form>
-
     </div>
 
 </body>
