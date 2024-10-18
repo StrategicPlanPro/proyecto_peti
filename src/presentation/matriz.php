@@ -591,42 +591,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
 
 
 
-        <h2>Niveles de Venta de los Competidores de Cada Producto</h2>
-        <form action="" method="POST">
-            <table>
-                <!-- Cabecera: Empresa y Nombres de Productos -->
-                <tr class="header-yellow">
-                    <th>EMPRESA</th>
-                    <!-- Aquí se repiten las columnas por cada producto -->
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <th colspan="2" style="text-align: center;">
-                        <?php echo htmlspecialchars($producto['nombre']); ?> (<?php echo htmlspecialchars($producto['ventas'] ?? 0); ?>)
-                        </th>
-                    <?php endforeach; ?>
-                </tr>
+<h2>Niveles de Venta de los Competidores de Cada Producto</h2>
+    <form action="" method="POST">
+        <table>
+            <!-- Cabecera: Empresa y Nombres de Productos -->
+            <tr class="header-yellow">
+                <th>EMPRESA</th>
+                <!-- Aquí se repiten las columnas por cada producto -->
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <th colspan="2" style="text-align: center;">
+                    <?php echo htmlspecialchars($producto['nombre']); ?> (<?php echo htmlspecialchars($producto['ventas'] ?? 0); ?>)
+                    </th>
+                <?php endforeach; ?>
+            </tr>
 
-                <!-- Subcabecera: Competidor y Ventas -->
+            <!-- Subcabecera: Competidor y Ventas -->
+            <tr>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <th>Competidor</th>
+                    <th>Ventas</th>
+                <?php endforeach; ?>
+            </tr>
+
+            <!-- Filas de Competidores: 9 Competidores por producto -->
+            <?php for ($competidor = 1; $competidor <= 9; $competidor++): ?>
                 <tr>
                     <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <th>Competidor</th>
-                        <th>Ventas</th>
+                        <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
+                        <td>
+                            <input type="number" step="1" 
+                                name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" 
+                                placeholder="0" 
+                                value="<?php echo htmlspecialchars($producto['compe' . $competidor] ?? 0); ?>">
+                        </td>
                     <?php endforeach; ?>
                 </tr>
+            <?php endfor; ?>
 
-                <!-- Filas de Competidores: 9 Competidores por producto -->
-                <?php for ($competidor = 1; $competidor <= 9; $competidor++): ?>
-                    <tr>
-                        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                            <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
-                            <td>
-                                <input type="number" step="1" name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" placeholder="0" >
-                            </td>
-                        <?php endforeach; ?>
-                    </tr>
-                <?php endfor; ?>
-
-                <!-- Fila para mostrar el valor "Mayor" de cada producto -->
-                <tr class="header-gray">
+            <!-- Fila para mostrar el valor "Mayor" de cada producto -->
+            <tr class="header-gray">
                 <th>Mayor</th>
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                     <td colspan="2" style="text-align: center;">
@@ -636,10 +639,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                         <input type="hidden" id="mayor-<?php echo $index; ?>" name="mayor[<?php echo $index; ?>]" value="<?php echo isset($producto['mayor']) ? htmlspecialchars($producto['mayor']) : '0'; ?>">
                     </td>
                 <?php endforeach; ?>
-                </tr>
-            </table>
-            <button type="submit" name="guardarCompetencia">Guardar Niveles de Competencia</button>
-        </form>
+            </tr>
+        </table>
+        <button type="submit" name="guardarCompetencia">Guardar Niveles de Competencia</button>
+    </form>
 
         </div>
     <?php endif; ?>
