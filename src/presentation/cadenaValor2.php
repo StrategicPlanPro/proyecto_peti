@@ -16,7 +16,7 @@ $planData = new PlanData();
 $autovalorGuardado = $planData->obtenerAutovalorPorId($idPlan);
 
 // Obtener las reflexiones guardadas en la base de datos
-$reflexionesGuardadas = $planData->obtenerReflexionesPorId($idPlan); // Debes tener esta función para obtener las reflexiones
+$reflexionesGuardadas = $planData->obtenerReflexionesPorId($idPlan);
 
 // Convertimos el autovalor de cadena a un array
 $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fill(0, 25, 0); // Si no hay valor guardado, usamos 0 por defecto
@@ -150,7 +150,7 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
 
             <!-- Cuadro de texto para reflexiones -->
             <div class="center">
-                <textarea class="reflexion-textarea" name="reflexion" placeholder="Escribe tus reflexiones sobre el autodiagnóstico..."><?php echo isset($reflexionesGuardadas) ? $reflexionesGuardadas : ''; ?></textarea>
+                <textarea class="reflexion-textarea" name="reflexion" placeholder="Escribe tus reflexiones sobre el autodiagnóstico..."><?php echo isset($reflexionesGuardadas) ? htmlspecialchars($reflexionesGuardadas) : ''; ?></textarea>
             </div>
 
             <!-- Botón para guardar las reflexiones -->
