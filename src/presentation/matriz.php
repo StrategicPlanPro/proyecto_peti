@@ -636,7 +636,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                     <!-- Aquí se repiten las columnas por cada producto -->
                     <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                         <th colspan="2" style="text-align: center;">
-                            <?php echo htmlspecialchars($producto['nombre']); ?> (<?php echo htmlspecialchars($producto['ventas']); ?>)
+                        <?php echo htmlspecialchars($producto['nombre']); ?> (<?php echo htmlspecialchars($producto['ventas'] ?? 0); ?>)
                         </th>
                     <?php endforeach; ?>
                 </tr>
