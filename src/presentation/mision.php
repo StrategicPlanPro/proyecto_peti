@@ -29,7 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         // Manejar el error si no se pudo actualizar
         echo "<script>alert('Error al actualizar la misión.');</script>";
     }
+    
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -45,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         <div class="form-content">
             <h1>Misión</h1>
             <form method="POST" action="">
-                <textarea name="mision" rows="10" cols="50" placeholder="Ingrese la misión aquí..."><?php echo htmlspecialchars($mision ?? '', ENT_QUOTES); ?></textarea>
+                <textarea name="mision" rows="10" cols="50" placeholder="Ingrese la misión aquí..."><?php echo htmlspecialchars($mision ?? '', ENT_QUOTES) ;?></textarea>
+                
                 <br><br>
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
                 <a href="dashboard.php" class="btn-volver">Volver</a>
