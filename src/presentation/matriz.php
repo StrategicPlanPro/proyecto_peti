@@ -288,7 +288,6 @@ function cargarProductosDesdeBD($pdo, $idplan) {
     <?php
         
         $productos = cargarProductosDesdeBD($pdo, $idplan);
-         var_dump($idplan);
         $_SESSION['productos'] = cargarProductosDesdeBD($pdo, $idplan);  
     ?>
     
