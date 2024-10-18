@@ -53,17 +53,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Procesar reflexiones si se hace clic en "Guardar Reflexión"
+    // Procesar reflexiones, fortalezas y debilidades si se hace clic en "Guardar Reflexión, Fortalezas y Debilidades"
     if (isset($_POST['guardarReflexion'])) {
         $reflexion = $_POST['reflexion'];
+        $fortalezas = $_POST['fortalezas'];
+        $debilidades = $_POST['debilidades'];
 
-        // Llamar a la función para actualizar las reflexiones
+        // Llamar a las funciones para actualizar reflexiones, fortalezas y debilidades
         $resultadoReflexion = $planData->actualizarReflexiones($idPlan, $reflexion);
+        $resultadoFortalezas = $planData->actualizarFortalezas($idPlan, $fortalezas);
+        $resultadoDebilidades = $planData->actualizarDebilidades($idPlan, $debilidades);
 
-        if ($resultadoReflexion) {
-            echo "<script>alert('Reflexión guardada con éxito.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
+        if ($resultadoReflexion && $resultadoFortalezas && $resultadoDebilidades) {
+            echo "<script>alert('Reflexión, Fortalezas y Debilidades guardadas con éxito.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
         } else {
-            echo "<script>alert('Error al guardar la reflexión.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
+            echo "<script>alert('Error al guardar Reflexión, Fortalezas o Debilidades.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
         }
         exit;
     }

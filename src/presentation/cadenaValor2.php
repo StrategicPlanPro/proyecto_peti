@@ -18,6 +18,12 @@ $autovalorGuardado = $planData->obtenerAutovalorPorId($idPlan);
 // Obtener las reflexiones guardadas en la base de datos
 $reflexionesGuardadas = $planData->obtenerReflexionesPorId($idPlan);
 
+// Obtener las fortalezas guardadas
+$fortalezasGuardadas = $planData->obtenerFortalezasPorId($idPlan);
+
+// Obtener las debilidades guardadas
+$debilidadesGuardadas = $planData->obtenerDebilidadesPorId($idPlan);
+
 // Convertimos el autovalor de cadena a un array
 $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fill(0, 25, 0); // Si no hay valor guardado, usamos 0 por defecto
 
@@ -88,11 +94,17 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             color: #333;
             margin-bottom: 20px;
         }
-        .reflexion-textarea {
+        .textarea-title {
+            font-size: 16px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .reflexion-textarea, .fortalezas-textarea, .debilidades-textarea {
             width: 100%;
             height: 100px;
             padding: 10px;
-            margin-top: 20px;
+            margin-top: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
@@ -112,7 +124,7 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
         <?php endif; ?>
 
-        <form method="POST" action="../business/autodiagnostico.php">
+        <form method="POST" action="autodiagnostico.php">
             <table>
                 <thead>
                     <tr>
@@ -148,14 +160,27 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
                 <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
             </div>
 
-            <!-- Cuadro de texto para reflexiones -->
+            <!-- Título y Cuadro de texto para reflexiones -->
             <div class="center">
+                <label class="textarea-title">Reflexiones</label>
                 <textarea class="reflexion-textarea" name="reflexion" placeholder="Escribe tus reflexiones sobre el autodiagnóstico..."><?php echo isset($reflexionesGuardadas) ? htmlspecialchars($reflexionesGuardadas) : ''; ?></textarea>
             </div>
 
-            <!-- Botón para guardar las reflexiones -->
+            <!-- Título y Cuadro de texto para fortalezas -->
             <div class="center">
-                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión</button>
+                <label class="textarea-title">Fortalezas</label>
+                <textarea class="fortalezas-textarea" name="fortalezas" placeholder="Escribe las fortalezas..."><?php echo isset($fortalezasGuardadas) ? htmlspecialchars($fortalezasGuardadas) : ''; ?></textarea>
+            </div>
+
+            <!-- Título y Cuadro de texto para debilidades -->
+            <div class="center">
+                <label class="textarea-title">Debilidades</label>
+                <textarea class="debilidades-textarea" name="debilidades" placeholder="Escribe las debilidades..."><?php echo isset($debilidadesGuardadas) ? htmlspecialchars($debilidadesGuardadas) : ''; ?></textarea>
+            </div>
+
+            <!-- Botón para guardar las reflexiones, fortalezas y debilidades -->
+            <div class="center">
+                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
             </div>
         </form>
     </div>
