@@ -141,6 +141,114 @@ function cargarProductosDesdeBD($pdo, $idplan) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Función para guardar Demanda Global del Sector (DGS)
+function guardarDgs($pdo, $dgs, $idplan) {
+    try {
+        foreach ($dgs as $index => $demanda) {
+            $producto = $_SESSION['productos'][$index]['nombre'];
+            // Actualiza los campos dgs1, dgs2, dgs3, dgs4, dgs5 según el índice
+            $stmt = $pdo->prepare("UPDATE producto SET dgs1 = :dgs1, dgs2 = :dgs2, dgs3 = :dgs3, dgs4 = :dgs4, dgs5 = :dgs5 WHERE nombre = :nombre AND idplan = :idplan");
+            $stmt->execute([
+                ':dgs1' => $demanda[0], // Demanda Global para 2019
+                ':dgs2' => $demanda[1], // Demanda Global para 2020
+                ':dgs3' => $demanda[2], // Demanda Global para 2021
+                ':dgs4' => $demanda[3], // Demanda Global para 2022
+                ':dgs5' => $demanda[4], // Demanda Global para 2023
+                ':nombre' => $producto,
+                ':idplan' => $idplan
+            ]);
+        }
+        echo "Demanda global guardada correctamente.";
+    } catch (PDOException $e) {
+        echo "Error al guardar la demanda global del sector: " . $e->getMessage();
+    }
+}
+
+// Guardar DGS si se envía el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarDgs'])) {
+    $dgs = [];
+    for ($i = 0; $i < count($_SESSION['productos']); $i++) {
+        $dgs[$i] = [
+            $_POST['dgs1'][$i] ?? 0, // Demanda Global para 2019
+            $_POST['dgs2'][$i] ?? 0, // Demanda Global para 2020
+            $_POST['dgs3'][$i] ?? 0, // Demanda Global para 2021
+            $_POST['dgs4'][$i] ?? 0, // Demanda Global para 2022
+            $_POST['dgs5'][$i] ?? 0  // Demanda Global para 2023
+        ];
+    }
+    guardarDgs($pdo, $dgs, $idplan);
+}
+
+// Función para guardar Niveles de Competencia (compe)
+function guardarCompetencia($pdo, $competencia, $idplan) {
+    try {
+        foreach ($competencia as $index => $data) {
+            $niveles = $data['niveles'];
+            $mayor = $data['mayor'];
+            $producto = $_SESSION['productos'][$index]['nombre'];
+            
+            // Actualiza los campos compe1, compe2, ..., compe9 y el campo "mayor"
+            $stmt = $pdo->prepare("
+                UPDATE producto 
+                SET compe1 = :compe1, compe2 = :compe2, compe3 = :compe3, compe4 = :compe4, 
+                    compe5 = :compe5, compe6 = :compe6, compe7 = :compe7, compe8 = :compe8, compe9 = :compe9, 
+                    mayor = :mayor
+                WHERE nombre = :nombre AND idplan = :idplan
+            ");
+            $stmt->execute([
+                ':compe1' => $niveles[0],
+                ':compe2' => $niveles[1],
+                ':compe3' => $niveles[2],
+                ':compe4' => $niveles[3],
+                ':compe5' => $niveles[4],
+                ':compe6' => $niveles[5],
+                ':compe7' => $niveles[6],
+                ':compe8' => $niveles[7],
+                ':compe9' => $niveles[8],
+                ':mayor'  => $mayor,
+                ':nombre' => $producto,
+                ':idplan' => $idplan
+            ]);
+        }
+        echo "Niveles de competencia y valor mayor guardados correctamente.";
+    } catch (PDOException $e) {
+        echo "Error al guardar niveles de competencia: " . $e->getMessage();
+    }
+}
+
+// Guardar competencia si se envía el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])) {
+    $competencia = [];
+    for ($i = 0; $i < count($_SESSION['productos']); $i++) {
+        // Recolectar los niveles de ventas de los competidores
+        $nivelesVentas = [
+            $_POST['ventas'][$i]['CP1'] ?? 0, // Nivel de ventas para CP1
+            $_POST['ventas'][$i]['CP2'] ?? 0, // Nivel de ventas para CP2
+            $_POST['ventas'][$i]['CP3'] ?? 0, // Nivel de ventas para CP3
+            $_POST['ventas'][$i]['CP4'] ?? 0, // Nivel de ventas para CP4
+            $_POST['ventas'][$i]['CP5'] ?? 0, // Nivel de ventas para CP5
+            $_POST['ventas'][$i]['CP6'] ?? 0, // Nivel de ventas para CP6
+            $_POST['ventas'][$i]['CP7'] ?? 0, // Nivel de ventas para CP7
+            $_POST['ventas'][$i]['CP8'] ?? 0, // Nivel de ventas para CP8
+            $_POST['ventas'][$i]['CP9'] ?? 0  // Nivel de ventas para CP9
+        ];
+
+        // Calcular el valor "mayor" (el máximo nivel de ventas)
+        $mayor = max($nivelesVentas);
+
+        // Almacenar tanto los niveles de competencia como el valor "mayor" en el array $competencia
+        $competencia[$i] = [
+            'niveles' => $nivelesVentas,
+            'mayor' => $mayor
+        ];
+    }
+
+    // Guardar los niveles de competencia y el valor "mayor" en la base de datos
+    guardarCompetencia($pdo, $competencia, $idplan);
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -410,49 +518,191 @@ function cargarProductosDesdeBD($pdo, $idplan) {
         <table>
             <tr class="header-red">
                 <th>Producto</th>
-                <th>TCM</th>
+                <th>TCM</th> <!-- Columna para la suma de TCM dividida entre los periodos -->
                 <th>PRM</th>
                 <th>% SVTAS</th>
             </tr>
             <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                 <tr class="product-<?php echo ($index + 1); ?>">
-                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Acceder al nombre del producto -->
-                    <td>0.00%</td>
-                    <td>0.00</td>
-                    <td><?php 
-                        try {
-                            if ($totalVentas > 0 && isset($ventas[$index]) && $ventas[$index] !== null) {
-                                echo number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%';
-                            } else {
-                                echo '0.00%';
-                            }
-                        } catch (Exception $e) {
-                            echo '0.00%'; // Si ocurre un error, mostramos 0.00%
-                        }                   
-                    ?></td>
+                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td> <!-- Nombre del producto -->
+                    <td>
+                        <?php
+                        // Realizamos una consulta para obtener los valores de TCM del producto
+                        $stmt = $pdo->prepare("SELECT tsc1, tsc2, tsc3, tsc4 FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+                        $stmt->execute([
+                            ':nombre' => $producto['nombre'],
+                            ':idplan' => $idplan
+                        ]);
+                        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        // Calculamos la suma de los TCM
+                        if ($row) {
+                            $tcmTotal = $row['tsc1'] + $row['tsc2'] + $row['tsc3'] + $row['tsc4'];
+                            $tcmPromedio = $tcmTotal / 4; // Dividimos entre 4 (número de periodos)
+                            echo number_format($tcmPromedio, 2) . '%'; // Mostramos el valor promedio con 2 decimales
+                        } else {
+                            echo '0.00%'; // Si no se encuentran valores, mostramos 0
+                        }
+                        ?>
+                    </td>
+                    <td>0.00</td> <!-- Aquí se completaría la columna PRM -->
+                    <td>
+                        <?php 
+                            try {
+                                if ($totalVentas > 0 && isset($ventas[$index]) && $ventas[$index] !== null) {
+                                    echo number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%';
+                                } else {
+                                    echo '0.00%';
+                                }
+                            } catch (Exception $e) {
+                                echo '0.00%'; // Si ocurre un error, mostramos 0.00%
+                            }                   
+                        ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>
 
-            <h2>Niveles de Venta de los Competidores</h2>
+        <h2>Evolución de la Demanda Global del Sector</h2>
+        <form action="" method="POST">
             <table>
+                <tr class="header-green">
+                    <th>Años</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
+                    <?php endforeach; ?>
+                </tr>
+                
+                <!-- Año 2019 -->
+                <tr class="header-gray">
+                    <th>2019</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="dgs1[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+
+                <!-- Año 2020 -->
+                <tr class="header-gray">
+                    <th>2020</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="dgs2[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+
+                <!-- Año 2021 -->
+                <tr class="header-gray">
+                    <th>2021</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="dgs3[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+
+                <!-- Año 2022 -->
+                <tr class="header-gray">
+                    <th>2022</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="dgs4[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+
+                <!-- Año 2023 -->
+                <tr class="header-gray">
+                    <th>2023</th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input type="number" step="0.01" name="dgs5[<?php echo $index; ?>]" placeholder="0.00" required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+            </table>
+            <button type="submit" name="guardarDgs">Guardar Demanda</button>
+        </form>
+
+
+
+        <h2>Niveles de Venta de los Competidores de Cada Producto</h2>
+        <form action="" method="POST">
+            <table>
+                <!-- Cabecera: Empresa y Nombres de Productos -->
                 <tr class="header-yellow">
-                    <th>Empresa</th>
+                    <th>EMPRESA</th>
+                    <!-- Aquí se repiten las columnas por cada producto -->
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <th colspan="2" style="text-align: center;">
+                            <?php echo htmlspecialchars($producto['nombre']); ?> (<?php echo htmlspecialchars($producto['ventas']); ?>)
+                        </th>
+                    <?php endforeach; ?>
+                </tr>
+
+                <!-- Subcabecera: Competidor y Ventas -->
+                <tr>
                     <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                         <th>Competidor</th>
                         <th>Ventas</th>
                     <?php endforeach; ?>
                 </tr>
-                <tr>
-                    <td>CP1</td>
-                    <td>CP2</td>
-                    <td>CP3</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+
+                <!-- Filas de Competidores: 9 Competidores por producto -->
+                <?php for ($competidor = 1; $competidor <= 9; $competidor++): ?>
+                    <tr>
+                        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                            <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
+                            <td>
+                                <input type="number" step="1" name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" placeholder="0" required>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endfor; ?>
+
+                <!-- Fila para mostrar el valor "Mayor" de cada producto -->
+                <tr class="header-gray">
+                <th>Mayor</th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td colspan="2" style="text-align: center;">
+                        <span id="mayor-text-<?php echo $index; ?>">
+                            <?php echo isset($producto['mayor']) ? htmlspecialchars($producto['mayor']) : 'N/A'; ?>
+                        </span>
+                        <input type="hidden" id="mayor-<?php echo $index; ?>" name="mayor[<?php echo $index; ?>]" value="<?php echo isset($producto['mayor']) ? htmlspecialchars($producto['mayor']) : '0'; ?>">
+                    </td>
+                <?php endforeach; ?>
                 </tr>
             </table>
+            <button type="submit" name="guardarCompetencia">Guardar Niveles de Competencia</button>
+        </form>
+
         </div>
     <?php endif; ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Recorre todos los productos para calcular el mayor valor de ventas
+        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+        const ventasInputs<?php echo $index; ?> = document.querySelectorAll('input[name^="ventas[<?php echo $index; ?>]"]');
+        const mayorInput<?php echo $index; ?> = document.getElementById('mayor-<?php echo $index; ?>');
+        const mayorText<?php echo $index; ?> = document.getElementById('mayor-text-<?php echo $index; ?>');
+
+        ventasInputs<?php echo $index; ?>.forEach(input => {
+            input.addEventListener('input', function() {
+                let maxValue = 0;
+                ventasInputs<?php echo $index; ?>.forEach(input => {
+                    const value = parseInt(input.value) || 0;
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
+                });
+                mayorInput<?php echo $index; ?>.value = maxValue;
+                mayorText<?php echo $index; ?>.textContent = maxValue;
+            });
+        });
+        <?php endforeach; ?>
+    });
+    </script>
 </body>
 </html>
