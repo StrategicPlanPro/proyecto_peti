@@ -18,6 +18,9 @@ $autovalorGuardado = $planData->obtenerAutovalorPorId($idPlan);
 // Convertimos el autovalor de cadena a un array
 $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fill(0, 25, 0); // Si no hay valor guardado, usamos 0 por defecto
 
+// Mostrar el potencial de mejora si está disponible
+$potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMejora'] : null;
+
 ?>
 
 <!DOCTYPE html>
@@ -77,6 +80,11 @@ $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fil
             cursor: pointer;
             border-radius: 5px;
         }
+        .result {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -84,7 +92,9 @@ $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fil
     <div class="container">
         <h2 class="center">Autodiagnóstico de la Cadena de Valor</h2>
 
-        <form method="POST" action="autodiagnostico.php">
+        
+
+        <form method="POST" action="../business/autodiagnostico.php">
             <table>
                 <thead>
                     <tr>
@@ -119,6 +129,14 @@ $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fil
                 <button type="submit" class="button">Realizar Autoevaluación</button>
             </div>
         </form>
+
+        <!-- Mostrar el potencial de mejora si está disponible -->
+        <?php if ($potencialMejora !== null): ?>
+            <div class="result center">
+                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
+            </div>
+            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
+        <?php endif; ?>
     </div>
 
 </body>

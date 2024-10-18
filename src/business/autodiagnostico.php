@@ -2,13 +2,9 @@
 
 require_once('../data/plan.php'); // Asegúrate de que esto apunte al archivo correcto donde tienes la clase PlanData
 
-// Verificar si la solicitud es POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    // Iniciar la sesión si no está iniciada ya
     session_start();
-
-    // Verificar si existe la sesión con el ID del plan
+    
     if (!isset($_SESSION['idPlan'])) {
         die("ID de plan no encontrado en la sesión.");
     }
@@ -17,14 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Crear un array para almacenar los valores seleccionados en el formulario
     $autovalores = [];
+    $suma = 0; // Variable para sumar todos los valores
 
     // Recorremos los 25 puntos de evaluación
     for ($i = 1; $i <= 25; $i++) {
         if (isset($_POST["punto_$i"])) {
             // Almacenamos el valor seleccionado (0, 1, 2, 3 o 4)
-            $autovalores[] = $_POST["punto_$i"];
+            $valor = $_POST["punto_$i"];
+            $autovalores[] = $valor;
+            $suma += $valor; // Sumar el valor seleccionado
         } else {
-            // En caso de que no se haya seleccionado nada, almacenamos un valor por defecto (0)
+            // En caso de que no se haya seleccionado nada, almacenamos 0 por defecto
             $autovalores[] = 0;
         }
     }
@@ -38,18 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Llamar a la función para actualizar el valor en la base de datos
     $resultado = $planData->actualizarAutovalor($idPlan, $nuevoAutovalor);
 
+    // Calcular el potencial de mejora: 1 - (suma / 100)
+    $potencialMejora = 1 - ($suma / 100);
+    $potencialMejoraPorcentaje = $potencialMejora * 100; // Convertir a porcentaje
+
+    // Almacenar el potencial de mejora en la sesión para mostrarlo en la vista
+    $_SESSION['potencialMejora'] = round($potencialMejoraPorcentaje, 2); // Redondeado a 2 decimales
+
     if ($resultado) {
-        // Mostrar un mensaje de éxito y redirigir a cadenaValor2.php
-        echo "<script>
-            alert('Los datos se han guardado con éxito.');
-            window.location.href = '../presentation/cadenaValor2.php'; // Redirigir a cadenaValor2.php
-        </script>";
+        // Redirigir a cadenaValor2.php para mostrar el resultado en la vista
+        header("Location: ../presentation/cadenaValor2.php");
         exit;
     } else {
         echo "Error al actualizar la autoevaluación.";
     }
 } else {
-    // Mostrar un error si la solicitud no es POST
     die("Solicitud no válida.");
 }
-?>
