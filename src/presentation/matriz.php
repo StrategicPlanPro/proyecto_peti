@@ -5,15 +5,20 @@ require_once __DIR__ . '/../data/neonConnection.php'; // Conexión a la base de 
 // Instancia de la conexión
 $conexion = new Conexion();
 $pdo = $conexion->getConnection();
-
-// Inicializar productos si no están definidos en la sesión
-if (!isset($_SESSION['productos'])) {
-    $_SESSION['productos'] = [];
-}
-
 // Obtener idusuario e idplan
 $idusuario = $_SESSION['idusuario'] ?? null;
 $idplan = $_SESSION['idPlan'] ?? null;
+
+// Inicializar productos si no están definidos en la sesión
+if (!isset($_SESSION['productos']) || empty($_SESSION['productos'])) {
+    // Cargar productos desde la base de datos y guardarlos en la sesión
+    $_SESSION['productos'] = cargarProductosDesdeBD($pdo, $idplan);
+}
+
+// Ahora, usamos los productos desde la sesión para mostrarlos en la página.
+$productos = $_SESSION['productos'];
+
+
 
 // Limpiar productos de la sesión
 if (isset($_POST['limpiarSesion'])) {
@@ -85,8 +90,10 @@ function eliminarProducto($pdo, $index) {
     try {
         $stmt = $pdo->prepare("DELETE FROM producto WHERE nombre = :nombre AND idplan = :idplan");
         $stmt->execute([':nombre' => $productoData['nombre'], ':idplan' => $productoData['idplan']]);
+
+        // Eliminar de la sesión y reindexar
         unset($_SESSION['productos'][$index]);
-        $_SESSION['productos'] = array_values($_SESSION['productos']); // Reindexar
+        $_SESSION['productos'] = array_values($_SESSION['productos']);
     } catch (PDOException $e) {
         echo "Error al eliminar producto: " . $e->getMessage();
     }
@@ -128,6 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
     guardarTcm($pdo, $tcm, $idplan);
 }
 
+function cargarProductosDesdeBD($pdo, $idplan) {
+    $stmt = $pdo->prepare("SELECT nombre, ventas, tsc1, tsc2, tsc3, tsc4 FROM producto WHERE idplan = :idplan");
+    $stmt->execute([':idplan' => $idplan]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 ?>
 
@@ -272,6 +284,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
     </style>
 </head>
 <body>
+
+    <?php
+        
+        $productos = cargarProductosDesdeBD($pdo, $idplan);
+         var_dump($idplan);
+        $_SESSION['productos'] = cargarProductosDesdeBD($pdo, $idplan);  
+    ?>
+    
+                <br><br>
     <h1>Ingreso de Productos</h1>
     <form method="POST">
         <label>Nombre del Producto:</label>
@@ -283,10 +304,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
     <form method="POST">
         <button type="submit" name="limpiarSesion">Limpiar Productos de Sesión</button>
     </form>
-
+    
     <h2>Productos Ingresados</h2>
+    
     <ul>
-        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+        <?php foreach ($productos as $index => $producto): ?>
             <li>
                 <?= htmlspecialchars($producto['nombre']); ?>
                 <form method="POST" style="display:inline;">
