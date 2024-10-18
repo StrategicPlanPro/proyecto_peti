@@ -124,7 +124,7 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
         <?php endif; ?>
 
-        <form method="POST" action="autodiagnostico.php">
+        <form method="POST" action="../business/autodiagnostico.php">
             <table>
                 <thead>
                     <tr>

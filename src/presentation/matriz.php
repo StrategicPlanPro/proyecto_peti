@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
 }
 
 function cargarProductosDesdeBD($pdo, $idplan) {
-    $stmt = $pdo->prepare("SELECT nombre, ventas, tsc1, tsc2, tsc3, tsc4 FROM producto WHERE idplan = :idplan");
+    $stmt = $pdo->prepare("SELECT * FROM producto WHERE idplan = :idplan");
     $stmt->execute([':idplan' => $idplan]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -468,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
             <button type="submit">Ingresar ventas</button>
         </form>
         <h2>Tasas de Crecimiento del Mercado (TCM)</h2>
-        <form action="" method="POST"> <!-- Cambia la acción del formulario para que apunte al mismo archivo -->
+        <form action="" method="POST"> 
             <table>
                 <tr class="header-green">
                     <th>Períodos</th>
@@ -476,40 +476,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                         <th><?php echo htmlspecialchars($producto['nombre']); ?></th>
                     <?php endforeach; ?>
                 </tr>
-                <tr class="header-gray">
-                    <th>2019 - 2020</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="tsc1[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-                <tr class="header-gray">
-                    <th>2020 - 2021</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="tsc2[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-                <tr class="header-gray">
-                    <th>2021 - 2022</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="tsc3[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-                <tr class="header-gray">
-                    <th>2022 - 2023</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="tsc4[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
+
+                <?php 
+                // Crear un array con los años y los índices de las columnas
+                $periodos = ['2019 - 2020', '2020 - 2021', '2021 - 2022', '2022 - 2023']; 
+                $columnas = ['tsc1', 'tsc2', 'tsc3', 'tsc4']; 
+                ?>
+
+                <?php foreach ($periodos as $i => $periodo): ?>
+                    <tr class="header-gray">
+                        <th><?php echo $periodo; ?></th>
+                        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                            <td>
+                                <input 
+                                    type="number" 
+                                    step="0.01" 
+                                    name="<?php echo $columnas[$i]; ?>[<?php echo $index; ?>]" 
+                                    placeholder="0.00" 
+                                    value="<?php echo htmlspecialchars($producto[$columnas[$i]] ?? ''); ?>" 
+                                    required>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endforeach; ?>
             </table>
-            <button type="submit" name="guardarTcm">Ingresar TCM</button> <!-- Asegúrate de incluir el nombre del botón -->
+            <button type="submit" name="guardarTcm">Ingresar TCM</button>
         </form>
 
 
@@ -563,67 +554,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
         </table>
 
         <h2>Evolución de la Demanda Global del Sector</h2>
-        <form action="" method="POST">
-            <table>
-                <tr class="header-green">
-                    <th>Años</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
-                    <?php endforeach; ?>
-                </tr>
-                
-                <!-- Año 2019 -->
-                <tr class="header-gray">
-                    <th>2019</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="dgs1[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
+<form action="" method="POST">
+    <table>
+        <tr class="header-green">
+            <th>Años</th>
+            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
+            <?php endforeach; ?>
+        </tr>
 
-                <!-- Año 2020 -->
-                <tr class="header-gray">
-                    <th>2020</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="dgs2[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
+        <?php 
+        // Crear un array con los años y los índices de las columnas
+        $años = ['dgs1', 'dgs2', 'dgs3', 'dgs4', 'dgs5']; 
+        $nombresAños = ['2019', '2020', '2021', '2022', '2023'];
+        ?>
 
-                <!-- Año 2021 -->
-                <tr class="header-gray">
-                    <th>2021</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="dgs3[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-
-                <!-- Año 2022 -->
-                <tr class="header-gray">
-                    <th>2022</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="dgs4[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-
-                <!-- Año 2023 -->
-                <tr class="header-gray">
-                    <th>2023</th>
-                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                        <td>
-                            <input type="number" step="0.01" name="dgs5[<?php echo $index; ?>]" placeholder="0.00" required>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-            </table>
-            <button type="submit" name="guardarDgs">Guardar Demanda</button>
-        </form>
+        <?php foreach ($nombresAños as $i => $año): ?>
+            <tr class="header-gray">
+                <th><?php echo $año; ?></th>
+                <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                    <td>
+                        <input 
+                            type="number" 
+                            step="1" 
+                            name="<?php echo $años[$i]; ?>[<?php echo $index; ?>]" 
+                            placeholder="0.00" 
+                            value="<?php echo htmlspecialchars($producto[$años[$i]] ?? ''); ?>" 
+                            required>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+    <button type="submit" name="guardarDgs">Guardar Demanda</button>
+</form>
 
 
 
@@ -655,7 +619,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                             <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
                             <td>
-                                <input type="number" step="1" name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" placeholder="0" required>
+                                <input type="number" step="1" name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" placeholder="0" >
                             </td>
                         <?php endforeach; ?>
                     </tr>
