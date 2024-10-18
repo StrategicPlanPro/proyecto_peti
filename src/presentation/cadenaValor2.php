@@ -15,6 +15,9 @@ $planData = new PlanData();
 // Obtener el autovalor guardado en la base de datos
 $autovalorGuardado = $planData->obtenerAutovalorPorId($idPlan);
 
+// Obtener las reflexiones guardadas en la base de datos
+$reflexionesGuardadas = $planData->obtenerReflexionesPorId($idPlan); // Debes tener esta función para obtener las reflexiones
+
 // Convertimos el autovalor de cadena a un array
 $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fill(0, 25, 0); // Si no hay valor guardado, usamos 0 por defecto
 
@@ -85,6 +88,15 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             color: #333;
             margin-bottom: 20px;
         }
+        .reflexion-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +104,13 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
     <div class="container">
         <h2 class="center">Autodiagnóstico de la Cadena de Valor</h2>
 
-        
+        <!-- Mostrar el potencial de mejora si está disponible -->
+        <?php if ($potencialMejora !== null): ?>
+            <div class="result center">
+                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
+            </div>
+            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
+        <?php endif; ?>
 
         <form method="POST" action="../business/autodiagnostico.php">
             <table>
@@ -124,19 +142,22 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
                     ?>
                 </tbody>
             </table>
-            
+
+            <!-- Botón para guardar la autoevaluación -->
             <div class="center">
-                <button type="submit" class="button">Realizar Autoevaluación</button>
+                <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
+            </div>
+
+            <!-- Cuadro de texto para reflexiones -->
+            <div class="center">
+                <textarea class="reflexion-textarea" name="reflexion" placeholder="Escribe tus reflexiones sobre el autodiagnóstico..."><?php echo isset($reflexionesGuardadas) ? $reflexionesGuardadas : ''; ?></textarea>
+            </div>
+
+            <!-- Botón para guardar las reflexiones -->
+            <div class="center">
+                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión</button>
             </div>
         </form>
-
-        <!-- Mostrar el potencial de mejora si está disponible -->
-        <?php if ($potencialMejora !== null): ?>
-            <div class="result center">
-                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
-            </div>
-            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
-        <?php endif; ?>
     </div>
 
 </body>
