@@ -495,33 +495,6 @@ class PlanData
         }
     }
 
-    public function autodiagnostico($autovalor, $idPlan) {
-        try {
-            // Conexión a la base de datos
-            $db = new Conexion();
-            $conn = $db->getConnection();
-    
-            // Preparar la consulta SQL para actualizar el autodiagnóstico del plan
-            $query = "UPDATE plan SET autovalor = :autovalor WHERE idplan = :idPlan";
-    
-            $stmt = $conn->prepare($query);
-    
-            // Asignar los valores a los parámetros
-            $stmt->bindParam(':autovalor', $autovalor);
-            $stmt->bindParam(':idPlan', $idPlan);
-    
-            // Ejecutar la consulta
-            if ($stmt->execute()) {
-                return true; // Actualización exitosa
-            } else {
-                return false; // Fallo en la actualización
-            }
-        } catch (PDOException $e) {
-            // Manejo de errores
-            echo "Error: " . $e->getMessage();
-            return false;
-        }
-    }
 
     public function obtenerAutovalorPorId($idPlan) {
         try {

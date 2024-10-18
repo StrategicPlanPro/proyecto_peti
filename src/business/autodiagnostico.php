@@ -1,89 +1,76 @@
 <?php
-session_start();
-require_once('../data/plan.php');
 
-// Verificar si el usuario ha iniciado sesión y si se envió el formulario
-if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    // Redirigir al usuario a la página de inicio de sesión si no ha iniciado sesión
-    header("Location: login.php");
-    exit();
-}
+require_once('../data/plan.php'); // Asegúrate de que esto apunte al archivo correcto donde tienes la clase PlanData
 
-// Obtener el id del usuario y del plan desde la sesión
-$idusuario = $_SESSION['idusuario'];
-$idPlan = $_SESSION['idPlan'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    session_start();
+    
+    if (!isset($_SESSION['idPlan'])) {
+        die("ID de plan no encontrado en la sesión.");
+    }
 
-// Crear una instancia de PlanData
-$planData = new PlanData();
+    $idPlan = $_SESSION['idPlan'];
 
-// Obtener el autodiagnóstico (autovalor) existente del plan
-$autovalorExistente = $planData->obtenerAutovalorPorId($idPlan);
+    // Instancia de la clase que maneja los planes
+    $planData = new PlanData();
 
-// Si ya existe un autodiagnóstico guardado, mostrarlo o procesarlo como desees
-if ($autovalorExistente) {
-    echo "Autodiagnóstico existente encontrado.<br>";
-    // Convertir el JSON almacenado en un array para usarlo si es necesario
-    $autovalorExistenteArray = json_decode($autovalorExistente, true);
+    // Procesar autovalores si se hace clic en "Realizar Autoevaluación"
+    if (isset($_POST['guardarAutoevaluacion'])) {
+        $autovalores = [];
+        $suma = 0; // Variable para sumar todos los valores
+
+        // Recorremos los 25 puntos de evaluación
+        for ($i = 1; $i <= 25; $i++) {
+            if (isset($_POST["punto_$i"])) {
+                // Almacenamos el valor seleccionado (0, 1, 2, 3 o 4)
+                $valor = $_POST["punto_$i"];
+                $autovalores[] = $valor;
+                $suma += $valor; // Sumar el valor seleccionado
+            } else {
+                // En caso de que no se haya seleccionado nada, almacenamos 0 por defecto
+                $autovalores[] = 0;
+            }
+        }
+
+        // Convertir el array de autovalores en una cadena separada por comas
+        $nuevoAutovalor = implode(",", $autovalores);
+
+        // Llamar a la función para actualizar el valor en la base de datos
+        $resultado = $planData->actualizarAutovalor($idPlan, $nuevoAutovalor);
+
+        // Calcular el potencial de mejora: 1 - (suma / 100)
+        $potencialMejora = 1 - ($suma / 100);
+        $potencialMejoraPorcentaje = $potencialMejora * 100; // Convertir a porcentaje
+
+        // Almacenar el potencial de mejora en la sesión para mostrarlo en la vista
+        $_SESSION['potencialMejora'] = round($potencialMejoraPorcentaje, 2); // Redondeado a 2 decimales
+
+        if ($resultado) {
+            header("Location: ../presentation/cadenaValor2.php");
+            exit;
+        } else {
+            echo "Error al actualizar la autoevaluación.";
+        }
+    }
+
+    // Procesar reflexiones, fortalezas y debilidades si se hace clic en "Guardar Reflexión, Fortalezas y Debilidades"
+    if (isset($_POST['guardarReflexion'])) {
+        $reflexion = $_POST['reflexion'];
+        $fortalezas = $_POST['fortalezas'];
+        $debilidades = $_POST['debilidades'];
+
+        // Llamar a las funciones para actualizar reflexiones, fortalezas y debilidades
+        $resultadoReflexion = $planData->actualizarReflexiones($idPlan, $reflexion);
+        $resultadoFortalezas = $planData->actualizarFortalezas($idPlan, $fortalezas);
+        $resultadoDebilidades = $planData->actualizarDebilidades($idPlan, $debilidades);
+
+        if ($resultadoReflexion && $resultadoFortalezas && $resultadoDebilidades) {
+            echo "<script>alert('Reflexión, Fortalezas y Debilidades guardadas con éxito.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
+        } else {
+            echo "<script>alert('Error al guardar Reflexión, Fortalezas o Debilidades.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
+        }
+        exit;
+    }
 } else {
-    echo "No se encontró autodiagnóstico previo. Se procederá a guardar uno nuevo.<br>";
-    $autovalorExistenteArray = []; // Si no existe, se inicializa un array vacío
+    die("Solicitud no válida.");
 }
-
-// Recoger los valores del formulario de autoevaluación (sobreescribiendo o creando nuevos valores)
-$autovalor = [];
-for ($i = 1; $i <= 25; $i++) {
-    // Guardar el valor seleccionado en el array $autovalor o usar el valor existente
-    if (isset($_POST["valoracion_$i"])) {
-        $autovalor[$i] = $_POST["valoracion_$i"];
-    } else {
-        // Si no se seleccionó una opción, utilizar el valor existente o asignar 0
-        $autovalor[$i] = isset($autovalorExistenteArray[$i]) ? $autovalorExistenteArray[$i] : 0;
-    }
-}
-
-// Convertir el array a formato JSON para almacenarlo en la base de datos
-$autovalorJson = json_encode($autovalor);
-
-// Llamar a la función actualizarAutovalor para actualizar el valor en la base de datos
-if ($planData->actualizarAutovalor($idPlan, $autovalorJson)) {
-    echo "Autodiagnóstico guardado correctamente.<br>";
-
-    // Actualizar las reflexiones si se enviaron
-    if (isset($_POST['reflexiones'])) {
-        $nuevasReflexiones = $_POST['reflexiones'];
-        if ($planData->actualizarReflexiones($idPlan, $nuevasReflexiones)) {
-            echo "Reflexiones actualizadas correctamente.<br>";
-        } else {
-            echo "Error al actualizar las reflexiones.<br>";
-        }
-    }
-
-    // Actualizar las debilidades si se enviaron
-    if (isset($_POST['debilidades'])) {
-        $nuevasDebilidades = $_POST['debilidades'];
-        if ($planData->actualizarDebilidades($idPlan, $nuevasDebilidades)) {
-            echo "Debilidades actualizadas correctamente.<br>";
-        } else {
-            echo "Error al actualizar las debilidades.<br>";
-        }
-    }
-
-    // Actualizar las fortalezas si se enviaron
-    if (isset($_POST['fortalezas'])) {
-        $nuevasFortalezas = $_POST['fortalezas'];
-        if ($planData->actualizarFortalezas($idPlan, $nuevasFortalezas)) {
-            echo "Fortalezas actualizadas correctamente.<br>";
-        } else {
-            echo "Error al actualizar las fortalezas.<br>";
-        }
-    }
-
-    // Redirigir a la siguiente página
-    header("Location: ../presentation/matriz.php");
-    exit();
-
-} else {
-    // Si la actualización falla, mostrar un mensaje de error
-    echo "Hubo un error al guardar el autodiagnóstico.";
-}
-?>
