@@ -122,6 +122,7 @@ function guardarTcm($pdo, $tsc, $idplan) {
 }
 
 // Guardar TCM si se envía el formulario
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
     $tcm = [];
     for ($i = 0; $i < count($_SESSION['productos']); $i++) {
@@ -222,15 +223,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
     for ($i = 0; $i < count($_SESSION['productos']); $i++) {
         // Recolectar los niveles de ventas de los competidores
         $nivelesVentas = [
-            $_POST['ventas'][$i]['CP1'] ?? 0, // Nivel de ventas para CP1
-            $_POST['ventas'][$i]['CP2'] ?? 0, // Nivel de ventas para CP2
-            $_POST['ventas'][$i]['CP3'] ?? 0, // Nivel de ventas para CP3
-            $_POST['ventas'][$i]['CP4'] ?? 0, // Nivel de ventas para CP4
-            $_POST['ventas'][$i]['CP5'] ?? 0, // Nivel de ventas para CP5
-            $_POST['ventas'][$i]['CP6'] ?? 0, // Nivel de ventas para CP6
-            $_POST['ventas'][$i]['CP7'] ?? 0, // Nivel de ventas para CP7
-            $_POST['ventas'][$i]['CP8'] ?? 0, // Nivel de ventas para CP8
-            $_POST['ventas'][$i]['CP9'] ?? 0  // Nivel de ventas para CP9
+            $_POST['niveles_ventas'][$i]['CP1'] ?? 0, // Nivel de ventas para CP1
+            $_POST['niveles_ventas'][$i]['CP2'] ?? 0, // Nivel de ventas para CP2
+            $_POST['niveles_ventas'][$i]['CP3'] ?? 0, // Nivel de ventas para CP3
+            $_POST['niveles_ventas'][$i]['CP4'] ?? 0, // Nivel de ventas para CP4
+            $_POST['niveles_ventas'][$i]['CP5'] ?? 0, // Nivel de ventas para CP5
+            $_POST['niveles_ventas'][$i]['CP6'] ?? 0, // Nivel de ventas para CP6
+            $_POST['niveles_ventas'][$i]['CP7'] ?? 0, // Nivel de ventas para CP7
+            $_POST['niveles_ventas'][$i]['CP8'] ?? 0, // Nivel de ventas para CP8
+            $_POST['niveles_ventas'][$i]['CP9'] ?? 0  // Nivel de ventas para CP9
         ];
 
         // Calcular el valor "mayor" (el máximo nivel de ventas)
@@ -663,7 +664,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
         <table>
             <!-- Cabecera: Empresa y Nombres de Productos -->
             <tr class="header-yellow">
-                <th>EMPRESA</th>
                 <!-- Aquí se repiten las columnas por cada producto -->
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                     <th colspan="2" style="text-align: center;">
@@ -687,7 +687,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
                         <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
                         <td>
                             <input type="number" step="1" 
-                                name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" 
+                                name="niveles_ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" 
                                 placeholder="0" 
                                 value="<?php echo htmlspecialchars($producto['compe' . $competidor] ?? 0); ?>">
                         </td>
@@ -715,27 +715,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
     <?php endif; ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Recorre todos los productos para calcular el mayor valor de ventas
-        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-        const ventasInputs<?php echo $index; ?> = document.querySelectorAll('input[name^="ventas[<?php echo $index; ?>]"]');
-        const mayorInput<?php echo $index; ?> = document.getElementById('mayor-<?php echo $index; ?>');
-        const mayorText<?php echo $index; ?> = document.getElementById('mayor-text-<?php echo $index; ?>');
+        try {
+            // Recorre todos los productos para calcular el mayor valor de ventas
+            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+            const ventasInputs<?php echo $index; ?> = document.querySelectorAll('input[name^="ventas[<?php echo $index; ?>]"]');
+            const mayorInput<?php echo $index; ?> = document.getElementById('mayor-<?php echo $index; ?>');
+            const mayorText<?php echo $index; ?> = document.getElementById('mayor-text-<?php echo $index; ?>');
 
-        ventasInputs<?php echo $index; ?>.forEach(input => {
-            input.addEventListener('input', function() {
-                let maxValue = 0;
-                ventasInputs<?php echo $index; ?>.forEach(input => {
-                    const value = parseInt(input.value) || 0;
-                    if (value > maxValue) {
-                        maxValue = value;
-                    }
+            ventasInputs<?php echo $index; ?>.forEach(input => {
+                input.addEventListener('input', function() {
+                    let maxValue = 0;
+                    ventasInputs<?php echo $index; ?>.forEach(input => {
+                        const value = parseInt(input.value) || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                        }
+                    });
+                    mayorInput<?php echo $index; ?>.value = maxValue;
+                    mayorText<?php echo $index; ?>.textContent = maxValue;
                 });
-                mayorInput<?php echo $index; ?>.value = maxValue;
-                mayorText<?php echo $index; ?>.textContent = maxValue;
             });
-        });
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        } catch (error) {
+            console.error("el error fue aquí:", error);
+            alert("el error fue aquí: " + error.message); // Muestra el mensaje en una alerta
+        }
     });
-    </script>
+</script>
+
 </body>
 </html>
