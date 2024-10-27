@@ -282,17 +282,7 @@ function generarMatrizBCG($pdo, $idplan) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) {
     $clasificacion = generarMatrizBCG($pdo, $idplan);
     
-    echo "<table border='1'>";
-    echo "<tr><th>Producto</th><th>Clasificación BCG</th></tr>";
-
-    foreach ($_SESSION['productos'] as $index => $producto) {
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($producto['nombre']) . "</td>";
-        echo "<td>" . htmlspecialchars($clasificacion[$index]) . "</td>";
-        echo "</tr>";
-    }
-
-    echo "</table>";
+    
 }
 
 ?>
@@ -581,7 +571,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
                         }
                         ?>
                     </td>
-                    <td>0.00</td> <!-- Aquí se completaría la columna PRM -->
+                    <td>
+                        <?php
+                        // Consulta para obtener las ventas y el valor "mayor" del producto
+                        $stmt = $pdo->prepare("SELECT ventas, mayor FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+                        $stmt->execute([
+                            ':nombre' => $producto['nombre'],
+                            ':idplan' => $idplan
+                        ]);
+                        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        // Calcular PRM como ventas / mayor
+                        if ($data && $data['mayor'] > 0) {
+                            $prm = $data['ventas'] / $data['mayor'];
+                            echo number_format($prm, 2); // Mostrar PRM con 2 decimales
+                        } else {
+                            echo '0.00'; // Si mayor es 0 o no hay datos, mostramos 0.00
+                        }
+                        ?>
+                    </td>
                     <td>
                         <?php 
                             try {
@@ -598,6 +606,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
                 </tr>
             <?php endforeach; ?>
         </table>
+
 
         <h2>Evolución de la Demanda Global del Sector</h2>
         <form action="" method="POST">
@@ -635,28 +644,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
         <button type="submit" name="guardarDgs">Guardar Demanda</button>
         </form>
 
-        <h2>Matriz BCG</h2>
-<form method="POST">
-    <button type="submit" name="generarMatrizBCG">Generar Matriz BCG</button>
-</form>
 
-<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])): ?>
-    <?php
-        $clasificacion = generarMatrizBCG($pdo, $idplan);
-    ?>
-    <table border="1">
-        <tr class="header-blue">
-            <th>Producto</th>
-            <th>Clasificación</th>
-        </tr>
-        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-            <tr class="product-<?php echo ($index + 1); ?>">
-                <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
-                <td><?php echo htmlspecialchars($clasificacion[$index]); ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
-<?php endif; ?>
 
 
 <h2>Niveles de Venta de los Competidores de Cada Producto</h2>
@@ -742,6 +730,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
         }
     });
 </script>
+<h2>Matriz BCG</h2>
+<form method="POST">
+    <button type="submit" name="generarMatrizBCG">Generar Matriz BCG</button>
+</form>
 
+<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])): ?>
+    <?php
+        $clasificacion = generarMatrizBCG($pdo, $idplan);
+    ?>
+    <table border="1">
+        <tr class="header-blue">
+            <th>Producto</th>
+            <th>Clasificación</th>
+        </tr>
+        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+            <tr class="product-<?php echo ($index + 1); ?>">
+                <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
+                <td><?php echo htmlspecialchars($clasificacion[$index]); ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+<?php endif; ?>
 </body>
 </html>
