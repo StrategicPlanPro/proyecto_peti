@@ -122,6 +122,7 @@ function guardarTcm($pdo, $tsc, $idplan) {
 }
 
 // Guardar TCM si se envía el formulario
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarTcm'])) {
     $tcm = [];
     for ($i = 0; $i < count($_SESSION['productos']); $i++) {
@@ -222,15 +223,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
     for ($i = 0; $i < count($_SESSION['productos']); $i++) {
         // Recolectar los niveles de ventas de los competidores
         $nivelesVentas = [
-            $_POST['ventas'][$i]['CP1'] ?? 0, // Nivel de ventas para CP1
-            $_POST['ventas'][$i]['CP2'] ?? 0, // Nivel de ventas para CP2
-            $_POST['ventas'][$i]['CP3'] ?? 0, // Nivel de ventas para CP3
-            $_POST['ventas'][$i]['CP4'] ?? 0, // Nivel de ventas para CP4
-            $_POST['ventas'][$i]['CP5'] ?? 0, // Nivel de ventas para CP5
-            $_POST['ventas'][$i]['CP6'] ?? 0, // Nivel de ventas para CP6
-            $_POST['ventas'][$i]['CP7'] ?? 0, // Nivel de ventas para CP7
-            $_POST['ventas'][$i]['CP8'] ?? 0, // Nivel de ventas para CP8
-            $_POST['ventas'][$i]['CP9'] ?? 0  // Nivel de ventas para CP9
+            $_POST['niveles_ventas'][$i]['CP1'] ?? 0, // Nivel de ventas para CP1
+            $_POST['niveles_ventas'][$i]['CP2'] ?? 0, // Nivel de ventas para CP2
+            $_POST['niveles_ventas'][$i]['CP3'] ?? 0, // Nivel de ventas para CP3
+            $_POST['niveles_ventas'][$i]['CP4'] ?? 0, // Nivel de ventas para CP4
+            $_POST['niveles_ventas'][$i]['CP5'] ?? 0, // Nivel de ventas para CP5
+            $_POST['niveles_ventas'][$i]['CP6'] ?? 0, // Nivel de ventas para CP6
+            $_POST['niveles_ventas'][$i]['CP7'] ?? 0, // Nivel de ventas para CP7
+            $_POST['niveles_ventas'][$i]['CP8'] ?? 0, // Nivel de ventas para CP8
+            $_POST['niveles_ventas'][$i]['CP9'] ?? 0  // Nivel de ventas para CP9
         ];
 
         // Calcular el valor "mayor" (el máximo nivel de ventas)
@@ -247,6 +248,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
     guardarCompetencia($pdo, $competencia, $idplan);
 }
 
+// Función para clasificar productos en la matriz BCG basada únicamente en la Demanda Global
+// Función para clasificar productos en la matriz BCG
+
+// echo "cuota".$cuotaMercado." ; ";
+// echo "crecimiento".$crecimientoMercado." ; ";
+// Función para clasificar productos en la matriz BCG
+function generarMatrizBCG($pdo, $idplan) {
+    $productos = $_SESSION['productos'];
+    $clasificacion = [];
+    $decisiones = []; // Array para almacenar las decisiones estratégicas
+
+    foreach ($productos as $index => $producto) {
+        // Obtener ventas y competidores
+        $stmt = $pdo->prepare("
+            SELECT ventas, compe1, compe2, compe3, compe4, compe5, compe6, compe7, compe8, compe9, tsc1, tsc2, tsc3, tsc4
+            FROM producto 
+            WHERE nombre = :nombre AND idplan = :idplan
+        ");
+        $stmt->execute([':nombre' => $producto['nombre'], ':idplan' => $idplan]);
+        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Cálculo de la cuota de mercado
+        $ventas = $datos['ventas'];
+        $ventasCompetidores = $datos['compe1'] + $datos['compe2'] + $datos['compe3'] + $datos['compe4'] + 
+                              $datos['compe5'] + $datos['compe6'] + $datos['compe7'] + 
+                              $datos['compe8'] + $datos['compe9'];
+        $cuotaMercado = ($ventas / ($ventas + $ventasCompetidores)) * 100; // Expresado como porcentaje
+
+        // Cálculo del crecimiento del mercado
+        $crecimientoMercado = ($datos['tsc1'] + $datos['tsc2'] + $datos['tsc3'] + $datos['tsc4']) / 4; // Promedio de tsc
+
+        // Clasificar el producto en la matriz BCG y asignar decisión estratégica
+        if ($cuotaMercado > 50) { // Cuota de mercado alta
+            if ($crecimientoMercado > 50) { // Alto crecimiento
+                $clasificacion[$index] = 'Estrella'; // Potenciar
+                $decisiones[$index] = 'Potenciar';
+            } else { // Bajo crecimiento
+                $clasificacion[$index] = 'Vaca'; // Mantener
+                $decisiones[$index] = 'Mantener';
+            }
+        } else { // Cuota de mercado baja
+            if ($crecimientoMercado > 50) { // Alto crecimiento
+                $clasificacion[$index] = 'Incógnita'; // Evaluar
+                $decisiones[$index] = 'Evaluar';
+            } else { // Bajo crecimiento
+                $clasificacion[$index] = 'Perro'; // Reestructurar o desinvertir
+                $decisiones[$index] = 'Reestructurar o desinvertir';
+            }
+        }
+    }
+
+    return ['clasificacion' => $clasificacion, 'decisiones' => $decisiones]; // Retorna ambas clasificaciones y decisiones
+}
+
+
+
+// Llamada a la función para mostrar la tabla de la matriz BCG
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) {
+    $resultados = generarMatrizBCG($pdo, $idplan);
+    $clasificacion = $resultados['clasificacion'];
+    $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
+}
 
 
 ?>
@@ -535,7 +598,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                         }
                         ?>
                     </td>
-                    <td>0.00</td> <!-- Aquí se completaría la columna PRM -->
+                    <td>
+                        <?php
+                        // Consulta para obtener las ventas y el valor "mayor" del producto
+                        $stmt = $pdo->prepare("SELECT ventas, mayor FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+                        $stmt->execute([
+                            ':nombre' => $producto['nombre'],
+                            ':idplan' => $idplan
+                        ]);
+                        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        // Calcular PRM como ventas / mayor
+                        if ($data && $data['mayor'] > 0) {
+                            $prm = $data['ventas'] / $data['mayor'];
+                            echo number_format($prm, 2); // Mostrar PRM con 2 decimales
+                        } else {
+                            echo '0.00'; // Si mayor es 0 o no hay datos, mostramos 0.00
+                        }
+                        ?>
+                    </td>
                     <td>
                         <?php 
                             try {
@@ -553,41 +634,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
             <?php endforeach; ?>
         </table>
 
+
         <h2>Evolución de la Demanda Global del Sector</h2>
-<form action="" method="POST">
-    <table>
-        <tr class="header-green">
-            <th>Años</th>
-            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
-            <?php endforeach; ?>
-        </tr>
-
-        <?php 
-        // Crear un array con los años y los índices de las columnas
-        $años = ['dgs1', 'dgs2', 'dgs3', 'dgs4', 'dgs5']; 
-        $nombresAños = ['2019', '2020', '2021', '2022', '2023'];
-        ?>
-
-        <?php foreach ($nombresAños as $i => $año): ?>
-            <tr class="header-gray">
-                <th><?php echo $año; ?></th>
+        <form action="" method="POST">
+        <table>
+            <tr class="header-green">
+                <th>Años</th>
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td>
-                        <input 
-                            type="number" 
-                            step="1" 
-                            name="<?php echo $años[$i]; ?>[<?php echo $index; ?>]" 
-                            placeholder="0.00" 
-                            value="<?php echo htmlspecialchars($producto[$años[$i]] ?? ''); ?>" 
-                            required>
-                    </td>
+                    <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
                 <?php endforeach; ?>
             </tr>
-        <?php endforeach; ?>
-    </table>
-    <button type="submit" name="guardarDgs">Guardar Demanda</button>
-</form>
+
+            <?php 
+            // Crear un array con los años y los índices de las columnas
+            $años = ['dgs1', 'dgs2', 'dgs3', 'dgs4', 'dgs5']; 
+            $nombresAños = ['2019', '2020', '2021', '2022', '2023'];
+            ?>
+
+            <?php foreach ($nombresAños as $i => $año): ?>
+                <tr class="header-gray">
+                    <th><?php echo $año; ?></th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input 
+                                type="number" 
+                                step="1" 
+                                name="<?php echo $años[$i]; ?>[<?php echo $index; ?>]" 
+                                placeholder="0.00" 
+                                value="<?php echo htmlspecialchars($producto[$años[$i]] ?? ''); ?>" 
+                                required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+        <button type="submit" name="guardarDgs">Guardar Demanda</button>
+        </form>
+
 
 
 
@@ -596,7 +679,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
         <table>
             <!-- Cabecera: Empresa y Nombres de Productos -->
             <tr class="header-yellow">
-                <th>EMPRESA</th>
                 <!-- Aquí se repiten las columnas por cada producto -->
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
                     <th colspan="2" style="text-align: center;">
@@ -620,7 +702,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
                         <td>CP<?php echo $competidor; ?>-<?php echo $index + 1; ?></td>
                         <td>
                             <input type="number" step="1" 
-                                name="ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" 
+                                name="niveles_ventas[<?php echo $index; ?>][CP<?php echo $competidor; ?>]" 
                                 placeholder="0" 
                                 value="<?php echo htmlspecialchars($producto['compe' . $competidor] ?? 0); ?>">
                         </td>
@@ -648,27 +730,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
     <?php endif; ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Recorre todos los productos para calcular el mayor valor de ventas
-        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-        const ventasInputs<?php echo $index; ?> = document.querySelectorAll('input[name^="ventas[<?php echo $index; ?>]"]');
-        const mayorInput<?php echo $index; ?> = document.getElementById('mayor-<?php echo $index; ?>');
-        const mayorText<?php echo $index; ?> = document.getElementById('mayor-text-<?php echo $index; ?>');
+        try {
+            // Recorre todos los productos para calcular el mayor valor de ventas
+            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+            const ventasInputs<?php echo $index; ?> = document.querySelectorAll('input[name^="ventas[<?php echo $index; ?>]"]');
+            const mayorInput<?php echo $index; ?> = document.getElementById('mayor-<?php echo $index; ?>');
+            const mayorText<?php echo $index; ?> = document.getElementById('mayor-text-<?php echo $index; ?>');
 
-        ventasInputs<?php echo $index; ?>.forEach(input => {
-            input.addEventListener('input', function() {
-                let maxValue = 0;
-                ventasInputs<?php echo $index; ?>.forEach(input => {
-                    const value = parseInt(input.value) || 0;
-                    if (value > maxValue) {
-                        maxValue = value;
-                    }
+            ventasInputs<?php echo $index; ?>.forEach(input => {
+                input.addEventListener('input', function() {
+                    let maxValue = 0;
+                    ventasInputs<?php echo $index; ?>.forEach(input => {
+                        const value = parseInt(input.value) || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                        }
+                    });
+                    mayorInput<?php echo $index; ?>.value = maxValue;
+                    mayorText<?php echo $index; ?>.textContent = maxValue;
                 });
-                mayorInput<?php echo $index; ?>.value = maxValue;
-                mayorText<?php echo $index; ?>.textContent = maxValue;
             });
-        });
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        } catch (error) {
+            console.error("el error fue aquí:", error);
+            alert("el error fue aquí: " + error.message); // Muestra el mensaje en una alerta
+        }
     });
-    </script>
+</script>
+<h2>Matriz BCG</h2>
+<form method="POST">
+    <button type="submit" name="generarMatrizBCG">Generar Matriz BCG</button>
+</form>
+
+<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])): ?>
+    <?php
+        $resultados = generarMatrizBCG($pdo, $idplan);
+        $clasificacion = $resultados['clasificacion'];
+        $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
+    ?>
+    <table border="1">
+        <tr class="header-blue">
+            <th>Producto</th>
+            <th>Clasificación</th>
+            <th>Decisión Estratégica</th> <!-- Nueva columna para la decisión estratégica -->
+        </tr>
+        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+            <tr class="product-<?php echo ($index + 1); ?>">
+                <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
+                <td><?php echo htmlspecialchars($clasificacion[$index]); ?></td>
+                <td><?php echo htmlspecialchars($decisiones[$index]); ?></td> <!-- Mostrar la decisión estratégica -->
+            </tr>
+        <?php endforeach; ?>
+    </table>
+<?php endif; ?>
+
 </body>
 </html>
