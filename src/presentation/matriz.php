@@ -247,7 +247,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
     guardarCompetencia($pdo, $competencia, $idplan);
 }
 
+// Función para clasificar productos en la matriz BCG basada únicamente en la Demanda Global
+function generarMatrizBCG($pdo, $idplan) {
+    $productos = $_SESSION['productos'];
+    $clasificacion = [];
 
+    foreach ($productos as $index => $producto) {
+        // Obtener demanda global del sector (último año disponible en este caso)
+        $stmt = $pdo->prepare("SELECT dgs5 FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+        $stmt->execute([':nombre' => $producto['nombre'], ':idplan' => $idplan]);
+        $demandaGlobal = $stmt->fetch(PDO::FETCH_ASSOC)['dgs5'];
+
+        // Clasificar el producto en la matriz BCG basándose únicamente en la demanda global
+        if ($demandaGlobal > 50) { // Umbral de demanda global alto para clasificar como estrella o vaca
+            if ($demandaGlobal > 100) {
+                $clasificacion[$index] = 'Estrella';
+            } else {
+                $clasificacion[$index] = 'Vaca';
+            }
+        } else {
+            if ($demandaGlobal > 0) {
+                $clasificacion[$index] = 'Signo de Pregunta';
+            } else {
+                $clasificacion[$index] = 'Perro';
+            }
+        }
+    }
+
+    return $clasificacion;
+}
+
+// Llamada a la función para mostrar la tabla de la matriz BCG
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) {
+    $clasificacion = generarMatrizBCG($pdo, $idplan);
+    
+    echo "<table border='1'>";
+    echo "<tr><th>Producto</th><th>Clasificación BCG</th></tr>";
+
+    foreach ($_SESSION['productos'] as $index => $producto) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($producto['nombre']) . "</td>";
+        echo "<td>" . htmlspecialchars($clasificacion[$index]) . "</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+}
 
 ?>
 
@@ -554,41 +599,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
         </table>
 
         <h2>Evolución de la Demanda Global del Sector</h2>
-<form action="" method="POST">
-    <table>
-        <tr class="header-green">
-            <th>Años</th>
-            <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
-            <?php endforeach; ?>
-        </tr>
-
-        <?php 
-        // Crear un array con los años y los índices de las columnas
-        $años = ['dgs1', 'dgs2', 'dgs3', 'dgs4', 'dgs5']; 
-        $nombresAños = ['2019', '2020', '2021', '2022', '2023'];
-        ?>
-
-        <?php foreach ($nombresAños as $i => $año): ?>
-            <tr class="header-gray">
-                <th><?php echo $año; ?></th>
+        <form action="" method="POST">
+        <table>
+            <tr class="header-green">
+                <th>Años</th>
                 <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
-                    <td>
-                        <input 
-                            type="number" 
-                            step="1" 
-                            name="<?php echo $años[$i]; ?>[<?php echo $index; ?>]" 
-                            placeholder="0.00" 
-                            value="<?php echo htmlspecialchars($producto[$años[$i]] ?? ''); ?>" 
-                            required>
-                    </td>
+                    <th><?php echo htmlspecialchars($producto['nombre']); ?></th> <!-- Nombres de los productos -->
                 <?php endforeach; ?>
+            </tr>
+
+            <?php 
+            // Crear un array con los años y los índices de las columnas
+            $años = ['dgs1', 'dgs2', 'dgs3', 'dgs4', 'dgs5']; 
+            $nombresAños = ['2019', '2020', '2021', '2022', '2023'];
+            ?>
+
+            <?php foreach ($nombresAños as $i => $año): ?>
+                <tr class="header-gray">
+                    <th><?php echo $año; ?></th>
+                    <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+                        <td>
+                            <input 
+                                type="number" 
+                                step="1" 
+                                name="<?php echo $años[$i]; ?>[<?php echo $index; ?>]" 
+                                placeholder="0.00" 
+                                value="<?php echo htmlspecialchars($producto[$años[$i]] ?? ''); ?>" 
+                                required>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+        <button type="submit" name="guardarDgs">Guardar Demanda</button>
+        </form>
+
+        <h2>Matriz BCG</h2>
+<form method="POST">
+    <button type="submit" name="generarMatrizBCG">Generar Matriz BCG</button>
+</form>
+
+<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])): ?>
+    <?php
+        $clasificacion = generarMatrizBCG($pdo, $idplan);
+    ?>
+    <table border="1">
+        <tr class="header-blue">
+            <th>Producto</th>
+            <th>Clasificación</th>
+        </tr>
+        <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
+            <tr class="product-<?php echo ($index + 1); ?>">
+                <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
+                <td><?php echo htmlspecialchars($clasificacion[$index]); ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
-    <button type="submit" name="guardarDgs">Guardar Demanda</button>
-</form>
-
+<?php endif; ?>
 
 
 <h2>Niveles de Venta de los Competidores de Cada Producto</h2>
