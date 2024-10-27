@@ -249,41 +249,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarCompetencia'])
 }
 
 // Función para clasificar productos en la matriz BCG basada únicamente en la Demanda Global
+// Función para clasificar productos en la matriz BCG
+
+// echo "cuota".$cuotaMercado." ; ";
+// echo "crecimiento".$crecimientoMercado." ; ";
+// Función para clasificar productos en la matriz BCG
 function generarMatrizBCG($pdo, $idplan) {
     $productos = $_SESSION['productos'];
     $clasificacion = [];
+    $decisiones = []; // Array para almacenar las decisiones estratégicas
 
     foreach ($productos as $index => $producto) {
-        // Obtener demanda global del sector (último año disponible en este caso)
-        $stmt = $pdo->prepare("SELECT dgs5 FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+        // Obtener ventas y competidores
+        $stmt = $pdo->prepare("
+            SELECT ventas, compe1, compe2, compe3, compe4, compe5, compe6, compe7, compe8, compe9, tsc1, tsc2, tsc3, tsc4
+            FROM producto 
+            WHERE nombre = :nombre AND idplan = :idplan
+        ");
         $stmt->execute([':nombre' => $producto['nombre'], ':idplan' => $idplan]);
-        $demandaGlobal = $stmt->fetch(PDO::FETCH_ASSOC)['dgs5'];
+        $datos = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Clasificar el producto en la matriz BCG basándose únicamente en la demanda global
-        if ($demandaGlobal > 50) { // Umbral de demanda global alto para clasificar como estrella o vaca
-            if ($demandaGlobal > 100) {
-                $clasificacion[$index] = 'Estrella';
-            } else {
-                $clasificacion[$index] = 'Vaca';
+        // Cálculo de la cuota de mercado
+        $ventas = $datos['ventas'];
+        $ventasCompetidores = $datos['compe1'] + $datos['compe2'] + $datos['compe3'] + $datos['compe4'] + 
+                              $datos['compe5'] + $datos['compe6'] + $datos['compe7'] + 
+                              $datos['compe8'] + $datos['compe9'];
+        $cuotaMercado = ($ventas / ($ventas + $ventasCompetidores)) * 100; // Expresado como porcentaje
+
+        // Cálculo del crecimiento del mercado
+        $crecimientoMercado = ($datos['tsc1'] + $datos['tsc2'] + $datos['tsc3'] + $datos['tsc4']) / 4; // Promedio de tsc
+
+        // Clasificar el producto en la matriz BCG y asignar decisión estratégica
+        if ($cuotaMercado > 50) { // Cuota de mercado alta
+            if ($crecimientoMercado > 50) { // Alto crecimiento
+                $clasificacion[$index] = 'Estrella'; // Potenciar
+                $decisiones[$index] = 'Potenciar';
+            } else { // Bajo crecimiento
+                $clasificacion[$index] = 'Vaca'; // Mantener
+                $decisiones[$index] = 'Mantener';
             }
-        } else {
-            if ($demandaGlobal > 0) {
-                $clasificacion[$index] = 'Signo de Pregunta';
-            } else {
-                $clasificacion[$index] = 'Perro';
+        } else { // Cuota de mercado baja
+            if ($crecimientoMercado > 50) { // Alto crecimiento
+                $clasificacion[$index] = 'Incógnita'; // Evaluar
+                $decisiones[$index] = 'Evaluar';
+            } else { // Bajo crecimiento
+                $clasificacion[$index] = 'Perro'; // Reestructurar o desinvertir
+                $decisiones[$index] = 'Reestructurar o desinvertir';
             }
         }
     }
 
-    return $clasificacion;
+    return ['clasificacion' => $clasificacion, 'decisiones' => $decisiones]; // Retorna ambas clasificaciones y decisiones
 }
+
+
 
 // Llamada a la función para mostrar la tabla de la matriz BCG
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) {
-    $clasificacion = generarMatrizBCG($pdo, $idplan);
-    
-    
+    $resultados = generarMatrizBCG($pdo, $idplan);
+    $clasificacion = $resultados['clasificacion'];
+    $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
 }
+
 
 ?>
 
@@ -737,20 +764,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])) 
 
 <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generarMatrizBCG'])): ?>
     <?php
-        $clasificacion = generarMatrizBCG($pdo, $idplan);
+        $resultados = generarMatrizBCG($pdo, $idplan);
+        $clasificacion = $resultados['clasificacion'];
+        $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
     ?>
     <table border="1">
         <tr class="header-blue">
             <th>Producto</th>
             <th>Clasificación</th>
+            <th>Decisión Estratégica</th> <!-- Nueva columna para la decisión estratégica -->
         </tr>
         <?php foreach ($_SESSION['productos'] as $index => $producto): ?>
             <tr class="product-<?php echo ($index + 1); ?>">
                 <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
                 <td><?php echo htmlspecialchars($clasificacion[$index]); ?></td>
+                <td><?php echo htmlspecialchars($decisiones[$index]); ?></td> <!-- Mostrar la decisión estratégica -->
             </tr>
         <?php endforeach; ?>
     </table>
 <?php endif; ?>
+
 </body>
 </html>
