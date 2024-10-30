@@ -116,12 +116,21 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
             <p>
                 La situación idónea es tener una cartera equilibrada, es decir, productos y/o servicios con diferentes índices de crecimiento y diferentes cuotas o niveles de participación en el mercado.
             </p>
-        </div>
+            
+            <div class="btn-container">
+                <a href="matriz.php" class="btn">Autodiagnóstico BCG</a>
+            </div>
 
-        <div class="btn-container">
-            <a href="matriz.php" class="btn">Autodiagnóstico BCG</a>
+            
+            
         </div>
+        <div class="info-content">
+                <?php include('aside.php'); ?>
+            </div>
+        
+        
     </div>
+    
 
 </body>
 </html>
