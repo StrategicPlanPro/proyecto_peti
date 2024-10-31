@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                 <br><br>
 
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
-                <a href="dashboard.php" class="btn-volver">Volver</a>
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
             </form>
         </div>
 

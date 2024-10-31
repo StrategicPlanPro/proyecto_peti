@@ -116,13 +116,7 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
     <div class="container">
         <h2 class="center">Autodiagnóstico de la Cadena de Valor</h2>
 
-        <!-- Mostrar el potencial de mejora si está disponible -->
-        <?php if ($potencialMejora !== null): ?>
-            <div class="result center">
-                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
-            </div>
-            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
-        <?php endif; ?>
+        
 
         <form method="POST" action="../business/autodiagnostico.php">
             <table>
@@ -154,6 +148,14 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
                     ?>
                 </tbody>
             </table>
+
+            <!-- Mostrar el potencial de mejora si está disponible -->
+        <?php if ($potencialMejora !== null): ?>
+            <div class="result center">
+                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
+            </div>
+            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
+        <?php endif; ?>
 
             <!-- Botón para guardar la autoevaluación -->
             <div class="center">

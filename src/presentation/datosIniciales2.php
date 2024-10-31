@@ -56,17 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualizar Plan Ejecutivo</title>
+    <title>Visión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .btn-volver {
+        .btn-volver, .btn-guardar {
             background-color: gray;
             color: white;
             border: none;
             padding: 10px 20px;
             text-decoration: none;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
                 <input type="submit" name="guardarPlan" value="Guardar">
             </form>
             <br>
-            <a href="dashboard.php" class="btn-volver">Volver</a>
+            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
         </div>
 
         <div class="info-content">

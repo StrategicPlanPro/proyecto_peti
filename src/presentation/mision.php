@@ -36,11 +36,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misión</title>
+    <title>Visión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .btn-volver, .btn-guardar {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -51,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                 
                 <br><br>
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
-                <a href="dashboard.php" class="btn-volver">Volver</a>
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
             </form>
         </div>
 

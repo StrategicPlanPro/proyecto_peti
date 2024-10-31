@@ -15,17 +15,17 @@ if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Plan Ejecutivo</title>
+    <title>Visión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .btn-volver {
+        .btn-volver, .btn-guardar {
             background-color: gray;
             color: white;
             border: none;
             padding: 10px 20px;
             text-decoration: none;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -51,7 +51,7 @@ if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
                 <input type="submit" name="crearPlan" value="Crear Plan">
             </form>
             <br>
-            <a href="../presentation/dashboard.php" class="btn-volver">Volver</a>
+            <a href="../presentation/dashboard.php" class="btn-volver">Volver al Dashboard</a>
         </div>
     </div>
 
