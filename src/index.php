@@ -39,7 +39,7 @@
                 Gracias al Plan Empresarial determinará la forma de lograr una ventaja competitiva para su proyecto de inversión.
             </p>
         </div>
-
+<br>
         <div class="btn-container">
             <a href="presentation/login.php" class="btn">¡Crea tu plan ahora!</a>
         </div>
