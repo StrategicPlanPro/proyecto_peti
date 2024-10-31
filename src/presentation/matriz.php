@@ -627,7 +627,7 @@
                     ?>
                     <table border="1">
                         <tr class="header-blue">
-                            <th>Producto</th>
+                            <th>Producto(s)</th>
                             <th>Clasificación</th>
                             <th>Decisión Estratégica</th>
                         </tr>
