@@ -37,7 +37,7 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
     <div class="container2">
         <div class="form-content2">
-            <h1>Análisis Interno y Externo</h1>
+            <h1 style="text-align: center;">Análisis Interno y Externo</h1>
             <div class="content">
                 <p>
                     Fijados los objetivos estratégicos se debe analizar las distintas estrategias para lograrlos.
@@ -97,8 +97,9 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                 <div class="image">
                     <img src="assets/images/FODA.png" alt="Diagrama FODA">
                 </div>
+                
             </div>
-
+            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
             <a href="cadenaValor.php" class="btn-siguiente">Siguiente</a>
 
         </div>

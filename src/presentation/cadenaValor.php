@@ -37,7 +37,7 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
     <div class="container2">
         <div class="form-content3">
-            <h1>Cadena de Valor</h1>
+            <h1 style="text-align: center;">Cadena de Valor</h1>
             <div class="content">
                 <p>
                     Todas las actividades de una empresa forman la cadena de valor.
@@ -85,11 +85,11 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                 <p>Cada eslabón de la cadena puede ser fuente de ventaja competitiva, ya sea porque se optimice (excelencia en la ejecución de una actividad) y/o mejore su coordinación con otra actividad.</p>
             
                 <!-- Botón Siguiente alineado a la izquierda -->
-                <div class="button-container">
-                    <a href="cadenaValor2.php" class="btn-siguiente">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="cadenaValor2.php" class="btn-siguiente">
                         Siguiente
                     </a>
-                </div>
+                
 
             </div>
         </div>

@@ -182,8 +182,12 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
 
             <!-- Botón para guardar las reflexiones, fortalezas y debilidades -->
             <div class="center">
+                <button onclick="location.href='dashboard.php'" class="button">Volver al Dashboard</button>
                 <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
+                <button onclick="location.href='matriz1.php'" class="button">Siguiente</button>
+    
             </div>
+            
         </form>
     </div>
 

@@ -57,8 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                 <textarea name="valores" rows="10" cols="50" placeholder="Ingrese los valores aquí..."><?php echo htmlspecialchars($valores ?? '', ENT_QUOTES); ?></textarea>
                 <br><br>
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
-                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                
             </form>
+            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
         </div>
 
         <div class="info-content">
