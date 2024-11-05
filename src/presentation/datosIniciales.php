@@ -3,7 +3,7 @@
 session_start();
 
 // Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
+if (!isset($_SESSION['idusuario'])) {
     // Redirigir al usuario a la página de inicio de sesión
     header("Location: login.php");
     exit();

@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultadoDebilidades = $planData->actualizarDebilidades($idPlan, $debilidades);
 
         if ($resultadoReflexion && $resultadoFortalezas && $resultadoDebilidades) {
-            echo "<script>alert('Reflexión, Fortalezas y Debilidades guardadas con éxito.'); window.location.href = '../presentation/matriz1.php';</script>";
+            echo "<script>alert('Reflexión, Fortalezas y Debilidades guardadas con éxito.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
         } else {
             echo "<script>alert('Error al guardar Reflexión, Fortalezas o Debilidades.'); window.location.href = '../presentation/cadenaValor2.php';</script>";
         }

@@ -127,7 +127,7 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
         </div>
         <div class="info-content">
                 <?php include('aside.php'); ?>
-            </div>
+        </div>
         
         
     </div>

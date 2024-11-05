@@ -150,18 +150,13 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             </table>
 
             <!-- Mostrar el potencial de mejora si está disponible -->
-        <?php if ($potencialMejora !== null): ?>
-            <div class="result center">
-                <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
-            </div>
-            <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
-        <?php endif; ?>
-
-            <!-- Botón para guardar la autoevaluación -->
-            <div class="center">
-                <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
-            </div>
-
+            <?php if ($potencialMejora !== null): ?>
+                <div class="result center">
+                    <strong>POTENCIAL DE MEJORA DE LA CADENA DE VALOR INTERNA: <?php echo $potencialMejora; ?>%</strong>
+                </div>
+                <?php unset($_SESSION['potencialMejora']); // Limpiar el valor de la sesión ?>
+            <?php endif; ?>
+        
             <!-- Título y Cuadro de texto para reflexiones -->
             <div class="center">
                 <label class="textarea-title">Reflexiones</label>
@@ -180,15 +175,19 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
                 <textarea class="debilidades-textarea" name="debilidades" placeholder="Escribe las debilidades..."><?php echo isset($debilidadesGuardadas) ? htmlspecialchars($debilidadesGuardadas) : ''; ?></textarea>
             </div>
 
+            <!-- Botón para guardar la autoevaluación -->
+            <div class="center">
+                <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
+                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
+            </div>
+        </form>
+
             <!-- Botón para guardar las reflexiones, fortalezas y debilidades -->
             <div class="center">
                 <button onclick="location.href='dashboard.php'" class="button">Volver al Dashboard</button>
-                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
-                <button onclick="location.href='matriz1.php'" class="button">Siguiente</button>
-    
+                
+                <button class="button" onclick="location.href='matriz1.php'">Siguiente</button>
             </div>
-            
-        </form>
     </div>
 
 </body>
