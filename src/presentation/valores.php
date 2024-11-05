@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
     <title>Valores</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .btn-volver, .btn-guardar {
+        .btn-volver, .btn-siguiente, .btn-guardar {
             background-color: gray;
             color: white;
             border: none;
@@ -46,6 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             text-decoration: none;
             cursor: pointer;
             margin-top: 10px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover, .btn-guardar:hover {
+            background-color: #555; /* Cambia el color al pasar el ratón */
+        }
+
+        .btn-siguiente {
+            background-color: #333; /* Color más oscuro para el botón "Siguiente" */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Espacio entre los botones */
+            margin-top: 10px; /* Margen superior */
         }
     </style>
 </head>
@@ -57,9 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
                 <textarea name="valores" rows="10" cols="50" placeholder="Ingrese los valores aquí..."><?php echo htmlspecialchars($valores ?? '', ENT_QUOTES); ?></textarea>
                 <br><br>
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
-                
             </form>
-            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+            <div class="button-container">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="siguiente_pagina.php" class="btn-siguiente">Siguiente</a> <!-- Botón siguiente -->
+            </div>
         </div>
 
         <div class="info-content">
@@ -67,3 +85,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         </div>
     </div>
 </body>
+</html>

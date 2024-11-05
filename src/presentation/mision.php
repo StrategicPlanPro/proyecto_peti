@@ -22,16 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 
     // Verificar si la actualización fue exitosa
     if ($resultado) {
-        // Puedes redirigir a otra página o mostrar un mensaje de éxito
         echo "<script>alert('Misión guardada exitosamente.');</script>";
         $mision = $nuevaMision; // Actualizar la misión en la variable para reflejar el cambio en la página
     } else {
-        // Manejar el error si no se pudo actualizar
         echo "<script>alert('Error al actualizar la misión.');</script>";
     }
-    
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -40,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visión</title>
+    <title>Misión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .btn-volver, .btn-guardar {
+        .btn-volver, .btn-siguiente, .btn-guardar {
             background-color: gray;
             color: white;
             border: none;
@@ -51,6 +47,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             text-decoration: none;
             cursor: pointer;
             margin-top: 10px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover, .btn-guardar:hover {
+            background-color: #555; /* Cambia el color al pasar el ratón */
+        }
+
+        .btn-siguiente {
+            background-color: #333; /* Color más oscuro para el botón "Siguiente" */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Espacio entre los botones */
+            margin-top: 10px; /* Margen superior */
         }
     </style>
 </head>
@@ -59,13 +71,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
         <div class="form-content">
             <h1>Misión</h1>
             <form method="POST" action="">
-                <textarea name="mision" rows="10" cols="50" placeholder="Ingrese la misión aquí..."><?php echo htmlspecialchars($mision ?? '', ENT_QUOTES) ;?></textarea>
+                <textarea name="mision" rows="10" cols="50" placeholder="Ingrese la misión aquí..."><?php echo htmlspecialchars($mision ?? '', ENT_QUOTES); ?></textarea>
                 
                 <br><br>
                 <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
-                
             </form>
-            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+            <div class="button-container">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="vision.php" class="btn-siguiente">Siguiente</a> <!-- Botón siguiente -->
+            </div>
         </div>
 
         <div class="info-content">

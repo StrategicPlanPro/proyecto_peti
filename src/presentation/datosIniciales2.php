@@ -12,7 +12,7 @@ if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
 include_once '../data/plan.php';
 
 // Obtener el idusuario de la sesión
-$idusuario = $_SESSION['idusuario'];  // idusuario en lugar de idUsuario
+$idusuario = $_SESSION['idusuario'];
 
 // Obtener la id del plan de la sesión
 $idPlan = $_SESSION['idPlan'];
@@ -21,7 +21,7 @@ $idPlan = $_SESSION['idPlan'];
 $planData = new PlanData();
 
 // Obtener el plan utilizando ambos IDs
-$plan = $planData->obtenerPlanPorId($idPlan, $idusuario);  // Asegúrate de pasar ambos argumentos
+$plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
 // Manejo de la actualización del plan
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
@@ -32,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
     // Manejar la carga del logo
     $logo = null;
     if (isset($_FILES['logo']) && $_FILES['logo']['error'] == UPLOAD_ERR_OK) {
-        // Aquí puedes agregar la lógica para mover el archivo a tu directorio deseado
         $targetDir = "../uploads/"; // Cambia esto a tu directorio de destino
         $logo = $targetDir . basename($_FILES["logo"]["name"]);
         move_uploaded_file($_FILES["logo"]["tmp_name"], $logo);
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
 
     if ($resultado) {
         echo "<script>alert('Plan actualizado exitosamente.');</script>";
-        // Opcional: actualizar la información del plan en la variable para reflejar el cambio en la página
         $plan = $planData->obtenerPlanPorId($idPlan, $idusuario); // Volver a obtener el plan actualizado
     } else {
         echo "<script>alert('Error al actualizar el plan.');</script>";
@@ -59,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
     <title>Visión</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .btn-volver, .btn-guardar {
+        .btn-volver, .btn-siguiente, .btn-guardar {
             background-color: gray;
             color: white;
             border: none;
@@ -67,6 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
             text-decoration: none;
             cursor: pointer;
             margin-top: 10px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-volver:hover, .btn-siguiente:hover, .btn-guardar:hover {
+            background-color: #555; /* Cambia el color al pasar el ratón */
+        }
+        .btn-siguiente {
+            background-color: #333; /* Color más oscuro para el botón "Siguiente" */
         }
     </style>
 </head>
@@ -90,10 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarPlan'])) {
                 <label for="logo">Subir Logo:</label>
                 <input type="file" id="logo" name="logo" accept="image/*">
 
-                <input type="submit" name="guardarPlan" value="Guardar">
+                <input type="submit" name="guardarPlan" value="Guardar" class="btn-guardar">
             </form>
             <br>
-            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="mision.php" class="btn-siguiente">Siguiente</a>
+            </div>
         </div>
 
         <div class="info-content">

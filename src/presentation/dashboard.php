@@ -21,6 +21,7 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Planes</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha384-DyZv62Mli+QnAbtYFs/xo4bZP5p22jM/N8EV9drX/NyUSmW1PusA5ICVOYUEhB0z" crossorigin="anonymous">
     <style>
         /* General page styling */
         body {
@@ -66,32 +67,46 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);
         }
 
         /* Button styling */
-        .button {
-            background: linear-gradient(to right, #ff6b6b, #ff7e7e);
+        .create-plan-button {
+            background-color: #ff6b6b; /* Salmon */
             border: none;
             color: white;
             padding: 10px 20px;
             font-size: 14px;
             cursor: pointer;
-            border-radius: 25px; /* Rounded corners for buttons */
-            transition: background-color 0.3s ease, color 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
         }
-        .button:hover {
-            background-color: #ff00ff; /* Fuchsia on hover */
+        .create-plan-button:hover {
+            background-color: #ff4e50; /* Darker Salmon */
         }
-        .button:active {
-            background-color: #800080; /* Purple on click */
+
+        .view-button {
+            background-color: #58a4b0; /* Soft teal */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
         }
-        .logout-button {
-            background: linear-gradient(to right, #ff4e50, #ff6a6b);
+        .view-button:hover {
+            background-color: #4b8b9a; /* Darker teal */
         }
-        .logout-button:hover {
-            background-color: #e0e0e0; /* Light gray on hover for logout */
-            color: #000000; /* Black text on hover */
+
+        .download-button {
+            background-color: #ffcc00; /* Bright yellow */
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
         }
-        .logout-button:active {
-            background-color: #d0d0d0; /* Slightly darker gray on click for logout */
+        .download-button:hover {
+            background-color: #e6b800; /* Darker yellow */
         }
 
         /* Table styling */
@@ -116,10 +131,6 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);
         tr:hover {
             background-color: #f9f9f9;
         }
-        .create-plan-button {
-            margin: 20px 0;
-            display: inline-block;
-        }
 
         /* Message styling */
         .empty-message {
@@ -132,11 +143,13 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);
 <body>
     <div class="container">
         <div class="header">
-            <button class="button logout-button" onclick="logout()">Cerrar Sesión</button>
+            <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
         </div>
 
         <h1>Dashboard de Planes</h1>
-        <button class="button create-plan-button" onclick="window.location.href='datosIniciales.php'">Crear Plan</button>
+        <button class="btn create-plan-button" onclick="window.location.href='datosIniciales.php'">
+            <i class="fas fa-plus"></i> Crear Plan
+        </button>
 
         <?php if (count($planes) > 0): ?>
             <table>
@@ -159,8 +172,12 @@ $planes = $planData->obtenerPlanesPorUsuario($idusuario);
                             </td>
                             <td><?php echo htmlspecialchars($plan['nombreempresa']); ?></td>
                             <td>
-                                <button class="button" onclick="redirectToDatosIniciales(<?php echo $plan['idplan']; ?>)">Ver Plan</button>
-                                <button class="button" onclick="window.location.href='../business/descargarPDF.php?id=<?php echo $plan['idplan']; ?>'">Descargar PDF</button>
+                                <button class="btn view-button" onclick="redirectToDatosIniciales(<?php echo $plan['idplan']; ?>)">
+                                    <i class="fas fa-eye"></i> Ver Plan
+                                </button>
+                                <button class="btn download-button" onclick="window.location.href='../business/descargarPDF.php?id=<?php echo $plan['idplan']; ?>'">
+                                    <i class="fas fa-download"></i> Descargar PDF
+                                </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
