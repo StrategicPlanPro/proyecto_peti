@@ -178,7 +178,7 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
             <!-- Botón para guardar la autoevaluación -->
             <div class="center">
                 <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
-                <button type="submit" name="guardarReflexion" class="button">Guardar Reflexión, Fortalezas y Debilidades</button>
+                <button type="submit" name="guardarReflexion" class="button">Guardar Datos</button>
             </div>
         </form>
 

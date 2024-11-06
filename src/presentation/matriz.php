@@ -54,11 +54,13 @@
                 $stmt = $pdo->prepare("UPDATE producto SET ventas = :ventas WHERE nombre = :nombre AND idplan = :idplan");
                 $stmt->execute([':ventas' => $venta, ':nombre' => $producto, ':idplan' => $idplan]);
             }
-            echo "Ventas guardadas correctamente.";
+            
+            // JavaScript para recargar la página
+            echo "<script type='text/javascript'>window.location.href = window.location.href;</script>";
         } catch (PDOException $e) {
             echo "Error al guardar ventas: " . $e->getMessage();
         }
-    }
+    }    
 
     // Agregar producto
     if (isset($_POST['agregarProducto'])) {
