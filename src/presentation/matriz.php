@@ -67,8 +67,18 @@
     }
 
     function agregarProducto($pdo, $producto, $idplan) {
-        
         try {
+            // Verificar si el producto ya existe en la base de datos
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM producto WHERE nombre = :nombre AND idplan = :idplan");
+            $stmt->execute([':nombre' => $producto, ':idplan' => $idplan]);
+            $productoExiste = $stmt->fetchColumn();
+    
+            if ($productoExiste > 0) {
+                echo "El producto ya existe en la base de datos.";
+                return;
+            }
+    
+            // Insertar el producto si no existe
             $stmt = $pdo->prepare("INSERT INTO producto (nombre, idplan) VALUES (:nombre, :idplan)");
             if ($stmt->execute([':nombre' => $producto, ':idplan' => $idplan])) {
                 $_SESSION['productos'][] = ['nombre' => $producto, 'idplan' => $idplan];
@@ -484,7 +494,7 @@
                     <button type="submit" name="guardarTcm">Ingresar TCM</button>
                 </form>
             </div>
-
+                                       
             <!-- QUINTA PARTE: Participación Relativa del Mercado (PRM) -->
             <div class="quintaparte-container">
                 <h2>Participación Relativa del Mercado (PRM)</h2>
@@ -641,8 +651,7 @@
                     </table>
                 <?php endif; ?>
             </div>
-        <?php endif; ?>
-
+        <?php endif; ?>        
         <!-- BOTONES -->
         <div>
             <button class="back-button" onclick="window.location.href='matriz1.php'">Volver</button>

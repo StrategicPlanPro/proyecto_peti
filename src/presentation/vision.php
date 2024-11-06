@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
             </form>
             <div class="button-container">
                 <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-                <a href="siguiente_pagina.php" class="btn-siguiente">Siguiente</a> <!-- Botón siguiente -->
+                <a href="valores.php" class="btn-siguiente">Siguiente</a> <!-- Botón siguiente -->
             </div>
         </div>
 
