@@ -642,5 +642,11 @@
                 <?php endif; ?>
             </div>
         <?php endif; ?>
+
+        <!-- BOTONES -->
+        <div>
+            <button class="back-button" onclick="window.location.href='matriz1.php'">Volver</button>
+            <button class="next-button" onclick="window.location.href='###.php'">Siguiente</button>
+        </div>
     </body>
 </html>

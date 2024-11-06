@@ -135,14 +135,14 @@ h4 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    height: 220px;
+    height: 140px;
     position: absolute;
-    top: 50px;
-    left: 50px;
+    top: 20px;
+    left: 190px;
 }
 
 .segundaparte-container {
-    width: 180px;
+    width: 205px;
     height: 220px;
     overflow-y: auto;
     background-color: white;
@@ -150,8 +150,8 @@ h4 {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: absolute;
-    top: 50px;
-    left: 340px;
+    top: 20px;
+    left: 800px;
 }
 
 .terceraparte-container {
@@ -163,21 +163,21 @@ h4 {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: absolute;
-    top: 50px;
-    left: 550px;
+    top: 20px;
+    left: 470px;
 }
 
 .cuartaparte-container {
     width: 250px;
-    height: 180px;
+    height: 260px;
     background-color: #ffffff;
     padding: 8px; /* Reducción de padding */
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     position: absolute;
-    top: 300px;
-    left: 50px;
+    top: 190px;
+    left: 190px;
 }
 
 .quintaparte-container {
@@ -189,8 +189,8 @@ h4 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     position: absolute;
-    top: 300px;
-    left: 330px;
+    top: 270px;
+    left: 800px;
 }
 
 .sextaparte-container {
@@ -202,21 +202,21 @@ h4 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     position: absolute;
-    top: 300px;
-    left: 560px;
+    top: 270px;
+    left: 470px;
 }
 
 .septimaparte-container {
-    width: 350px;
-    max-height: 180px;
+    width: 420px;
+    height: 180px;
     background-color: #ffffff;
     padding: 8px; /* Reducción de padding */
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     position: absolute;
-    top: 520px;
-    left: 50px;
+    top: 480px;
+    left: 190px;
 }
 
 .matrizbcg-container {
@@ -226,6 +226,48 @@ h4 {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: absolute;
-    left: 430px;
-    top: 520px;
+    top: 480px;
+    left: 650px;
+}
+
+/* Botón de Volver */
+.back-button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    text-align: center;
+    font-size: 12px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    position: absolute; /* Permite la configuración de posición manual */
+    top: 640px; /* Cambia estos valores para ajustar la posición */
+    left: 645px;
+}
+
+.back-button:hover {
+    background-color: #1976D2;
+}
+
+/* Botón de Volver */
+.next-button {
+    background-color: #45a049;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    text-align: center;
+    font-size: 12px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    position: absolute; /* Permite la configuración de posición manual */
+    top: 640px; /* Cambia estos valores para ajustar la posición */
+    left: 940px;
+}
+
+.next-button:hover {
+    background-color: #45a049;
 }
