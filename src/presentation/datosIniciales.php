@@ -15,7 +15,7 @@ if (!isset($_SESSION['idusuario'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visión</title>
+    <title>Datos Iniciales</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
         .btn-volver {
