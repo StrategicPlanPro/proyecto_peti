@@ -33,9 +33,36 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/indexStyle.css?v=1">
-    <!--<link rel="stylesheet" href="assets/css/styles.css">-->
 
     <title>ANÁLISIS INTERNO: MATRIZ DE CRECIMIENTO - PARTICIPACIÓN BCG</title>
+    <style>
+         .btn-volver, .btn-siguiente {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover {
+            background-color: #555;
+        }
+
+        .btn-siguiente {
+            background-color: #333;
+        }
+
+        .center {
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -118,20 +145,18 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                 La situación idónea es tener una cartera equilibrada, es decir, productos y/o servicios con diferentes índices de crecimiento y diferentes cuotas o niveles de participación en el mercado.
             </p>
             
-            <div class="btn-container">
-                <a href="matriz.php" class="btn">Autodiagnóstico BCG</a>
+            <!-- Contenedor de botones alineados en el centro -->
+            <div class="center" style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="matriz.php" class="btn-siguiente">Siguiente</a> <!--autodiagnostico BCG-->
             </div>
 
-            
-            
         </div>
+        
         <div class="info-content">
-                <?php include('aside.php'); ?>
+            <?php include('aside.php'); ?>
         </div>
-        
-        
     </div>
-    
 
 </body>
 </html>
