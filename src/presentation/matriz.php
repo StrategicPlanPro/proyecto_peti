@@ -306,7 +306,7 @@
                     $decisiones[$index] = 'Evaluar';
                 } else { // Bajo crecimiento
                     $clasificacion[$index] = 'Perro'; // Reestructurar o desinvertir
-                    $decisiones[$index] = 'Reestructurar o desinvertir';
+                    $decisiones[$index] = 'Reestructurar ';
                 }
             }
         }
@@ -657,7 +657,7 @@
         <?php endif; ?>        
         <!-- BOTONES -->
         <div>
-            <button class="back-button" onclick="window.location.href='matriz1.php'">Volver</button>
+            <button class="back-button" onclick="window.location.href='dashboard.php'">Volver</button>
             <button class="next-button" onclick="window.location.href='###.php'">Siguiente</button>
         </div>
     </body>
