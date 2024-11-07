@@ -243,15 +243,15 @@ h4 {
     border-radius: 5px;
     transition: background-color 0.3s;
     position: absolute; /* Permite la configuración de posición manual */
-    top: 640px; /* Cambia estos valores para ajustar la posición */
-    left: 645px;
+    top: 700px; /* Cambia estos valores para ajustar la posición */
+    left: 500px;
 }
 
 .back-button:hover {
     background-color: #1976D2;
 }
 
-/* Botón de Volver */
+/* Botón de Siguiente */
 .next-button {
     background-color: #45a049;
     color: white;
@@ -264,8 +264,8 @@ h4 {
     border-radius: 5px;
     transition: background-color 0.3s;
     position: absolute; /* Permite la configuración de posición manual */
-    top: 640px; /* Cambia estos valores para ajustar la posición */
-    left: 940px;
+    top: 700px; /* Cambia estos valores para ajustar la posición */
+    left: 660px;
 }
 
 .next-button:hover {

@@ -53,12 +53,13 @@
                 $producto = $_SESSION['productos'][$index]['nombre'];
                 $stmt = $pdo->prepare("UPDATE producto SET ventas = :ventas WHERE nombre = :nombre AND idplan = :idplan");
                 $stmt->execute([':ventas' => $venta, ':nombre' => $producto, ':idplan' => $idplan]);
+                echo "<script>alert('Ventas guardadas correctamente.');</script>";
             }
             
             // JavaScript para recargar la página
             echo "<script type='text/javascript'>window.location.href = window.location.href;</script>";
         } catch (PDOException $e) {
-            echo "Error al guardar ventas: " . $e->getMessage();
+            echo "<script>alert('Error al guardar ventas: " . addslashes($e->getMessage()) . "');</script>";
         }
     }    
 
@@ -76,7 +77,7 @@
             $productoExiste = $stmt->fetchColumn();
     
             if ($productoExiste > 0) {
-                echo "El producto ya existe en la base de datos.";
+                echo "<script>alert('El producto ya existe en la base de datos.');</script>";
                 return;
             }
     
@@ -84,10 +85,11 @@
             $stmt = $pdo->prepare("INSERT INTO producto (nombre, idplan) VALUES (:nombre, :idplan)");
             if ($stmt->execute([':nombre' => $producto, ':idplan' => $idplan])) {
                 $_SESSION['productos'][] = ['nombre' => $producto, 'idplan' => $idplan];
-                echo "Producto agregado correctamente.";
+                echo "<script>alert('Producto agregado correctamente.');</script>";
             }
         } catch (PDOException $e) {
-            echo "Error al agregar producto: " . $e->getMessage();
+            echo "<script>alert('Error al agregar producto: " . addslashes($e->getMessage()) . "');</script>";
+
         }
     }
 
@@ -106,8 +108,9 @@
             // Eliminar de la sesión y reindexar
             unset($_SESSION['productos'][$index]);
             $_SESSION['productos'] = array_values($_SESSION['productos']);
+            echo "<script>alert('Producto eliminado correctamente.');</script>";
         } catch (PDOException $e) {
-            echo "Error al eliminar producto: " . $e->getMessage();
+            echo "<script>alert('Error al eliminar producto: " . addslashes($e->getMessage()) . "');</script>";
         }
     }
 
@@ -127,9 +130,9 @@
                     ':idplan' => $idplan
                 ]);
             }
-            echo "Tasas de crecimiento guardadas correctamente.";
+            echo "<script>alert('Tasas de crecimiento guardadas correctamente.');</script>";
         } catch (PDOException $e) {
-            echo "Error al guardar tasas de crecimiento: " . $e->getMessage();
+            echo "<script>alert('Error al guardar tasas de crecimiento: " . addslashes($e->getMessage()) . "');</script>";
         }
     }
 
@@ -171,7 +174,7 @@
                     ':idplan' => $idplan
                 ]);
             }
-            echo "Demanda global guardada correctamente.";
+            echo "<script>alert('Demanda global guardada correctamente.');</script>";
         } catch (PDOException $e) {
             echo "Error al guardar la demanda global del sector: " . $e->getMessage();
         }
@@ -223,7 +226,7 @@
                     ':idplan' => $idplan
                 ]);
             }
-            echo "Niveles de competencia y valor mayor guardados correctamente.";
+            echo "<script>alert('Niveles de competencia y valor mayor guardados correctamente.');</script>";
         } catch (PDOException $e) {
             echo "Error al guardar niveles de competencia: " . $e->getMessage();
         }
@@ -321,6 +324,7 @@
         $resultados = generarMatrizBCG($pdo, $idplan);
         $clasificacion = $resultados['clasificacion'];
         $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
+        echo "<script>alert('La matriz BCG se ha generado correctamente.');</script>";
     }
 ?>
 
@@ -330,6 +334,11 @@
     <meta charset="UTF-8">
     <title>Matriz B.C.G</title>
     <link rel="stylesheet" href="assets/css/estilosmatriz.css">
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+    </script>
     <style>
         .info-content {
             width: 200px;  /* Reducir el ancho */
