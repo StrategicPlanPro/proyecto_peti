@@ -30,6 +30,35 @@ $autovalores = $autovalorGuardado ? explode(",", $autovalorGuardado) : array_fil
 // Mostrar el potencial de mejora si está disponible
 $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMejora'] : null;
 
+// Array de preguntas obtenidas de la imagen
+$preguntas = [
+    "La empresa tiene una política sistematizada de cero defectos en la producción de productos/servicios.",
+    "La empresa emplea los medios productivos tecnológicamente más avanzados de su sector.",
+    "La empresa dispone de un sistema de información y control de gestión eficiente y eficaz.",
+    "Los medios técnicos y tecnológicos de la empresa están preparados para competir en un futuro a corto, medio y largo plazo.",
+    "La empresa es un referente en su sector en I+D+i.",
+    "La excelencia de los procedimientos de la empresa (en ISO, etc.) es una principal fuente de ventaja competitiva.",
+    "La empresa dispone de página web, y esta se emplea no sólo como escaparate virtual de productos/servicios, sino también para establecer relaciones con clientes y proveedores.",
+    "Los productos/servicios que desarrolla nuestra empresa llevan incorporada una tecnología difícil de imitar.",
+    "La empresa es referente en su sector en la optimización, en términos de coste, de su cadena de producción, siendo ésta una de sus principales ventajas competitivas.",
+    "La informatización de la empresa es una fuente de ventaja competitiva clara respecto a sus competidores.",
+    "Los canales de distribución de la empresa son una importante fuente de ventajas competitivas.",
+    "Los productos/servicios de la empresa son altamente, y diferencialmente, valorados por el cliente respecto a nuestros competidores.",
+    "La empresa dispone y ejecuta un sistemático plan de marketing y ventas.",
+    "La empresa tiene optimizada su gestión financiera.",
+    "La empresa busca continuamente el mejorar la relación con sus clientes cortando los plazos de ejecución, personalizando la oferta o mejorando las condiciones de entrega. Pero siempre partiendo de un plan previo",
+    "La empresa es referente en su sector en el lanzamiento de innovadores productos y servicios de éxito demostrado en el mercado.",
+    "Los Recursos Humanos son especialmente responsables del éxito de la empresa, considerándolos incluso como el principal activo estratégico.",
+    "Se tiene una plantilla altamente motivada, que conoce con claridad las metas, objetivos y estrategias de la organización.",
+    "La empresa siempre trabaja conforme a una estrategia y objetivos claros.",
+    "La gestión del circulante está optimizada.",
+    "Se tiene definido claramente el posicionamiento estratégico de todos los productos de la empresa.",
+    "Se dispone de una política de marca basada en la reputación que la empresa genera, en la gestión de relación con el cliente y en el posicionamiento estratégico previamente definido.",
+    "La cartera de clientes de nuestra empresa está altamente fidelizada, ya que tenemos como principal propósito el deleitarlos día a día.",
+    "Nuestra política y equipo de ventas y marketing es una importante ventaja competitiva de nuestra empresa respecto al sector.",
+    "El servicio al cliente que prestamos es uno de nuestras principales ventajas competitivas respecto a nuestros competidores."
+];
+
 ?>
 
 <!DOCTYPE html>
@@ -39,6 +68,44 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autodiagnóstico de la Cadena de Valor</title>
     <style>
+        .btn-volver, .btn-siguiente {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover {
+            background-color: #555;
+        }
+
+        .btn-siguiente {
+            background-color: #333;
+        }
+
+        .button-save {
+            background-color: #ff4d4d; /* Color rojo como en la imagen */
+            color: white;
+            border: none;
+            padding: 10px 20px; /* Más delgado que antes */
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px; /* Bordes ligeramente redondeados */
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+         
+        }
+
+        .button-save:hover {
+            background-color: #d43f3f; /* Color rojo más oscuro en hover */
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -132,17 +199,18 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
                 </thead>
                 <tbody>
                     <?php 
-                    for ($i = 1; $i <= 25; $i++) {
+                    for ($i = 0; $i < 25; $i++) {
                         // Obtener el valor seleccionado de autovalores
-                        $valorSeleccionado = isset($autovalores[$i - 1]) ? $autovalores[$i - 1] : 0;
+                        $valorSeleccionado = isset($autovalores[$i]) ? $autovalores[$i] : 0;
+                        $pregunta = $preguntas[$i]; // Obtener la pregunta correspondiente
 
                         echo "<tr>
-                            <td>Punto de evaluación $i</td>
-                            <td><input type='radio' name='punto_$i' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
-                            <td><input type='radio' name='punto_$i' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
-                            <td><input type='radio' name='punto_$i' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
-                            <td><input type='radio' name='punto_$i' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
-                            <td><input type='radio' name='punto_$i' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
+                            <td>$pregunta</td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
                         </tr>";
                     }
                     ?>
@@ -177,17 +245,15 @@ $potencialMejora = isset($_SESSION['potencialMejora']) ? $_SESSION['potencialMej
 
             <!-- Botón para guardar la autoevaluación -->
             <div class="center">
-                <button type="submit" name="guardarAutoevaluacion" class="button">Realizar Autoevaluación</button>
-                <button type="submit" name="guardarReflexion" class="button">Guardar Datos</button>
+                <button type="submit" name="guardarAutoevaluacion" class="button-save">Realizar Autoevaluación</button>
+                <button type="submit" name="guardarReflexion" class="button-save">Guardar Datos</button>
             </div>
         </form>
 
-            <!-- Botón para guardar las reflexiones, fortalezas y debilidades -->
-            <div class="center">
-                <button onclick="location.href='dashboard.php'" class="button">Volver al Dashboard</button>
-                
-                <button class="button" onclick="location.href='matriz1.php'">Siguiente</button>
-            </div>
+            <div class="center" style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+            <a href="matriz1.php" class="btn-siguiente">Siguiente</a>
+        </div>
     </div>
 
 </body>
