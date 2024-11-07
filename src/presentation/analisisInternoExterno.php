@@ -12,7 +12,7 @@ if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
 include_once '../data/plan.php';
 
 // Obtener el idusuario de la sesión
-$idusuario = $_SESSION['idusuario'];  // idusuario en lugar de idUsuario
+$idusuario = $_SESSION['idusuario'];
 
 // Obtener la id del plan de la sesión
 $idPlan = $_SESSION['idPlan'];
@@ -22,7 +22,6 @@ $planData = new PlanData();
 
 // Obtener el plan utilizando ambos IDs
 $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
-
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +31,33 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis Interno y Externo</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .btn-volver, .btn-siguiente {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover {
+            background-color: #555;
+        }
+
+        .btn-siguiente {
+            background-color: #333;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px; /* Espacio superior del contenedor */
+            padding: 10px; /* Relleno interno del contenedor */
+            
+    </style>
 </head>
 <body>
 
@@ -99,18 +125,20 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
                 </div>
                 
             </div>
-            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-            <a href="cadenaValor.php" class="btn-siguiente">Siguiente</a>
+
+            <!-- Contenedor de los botones -->
+            <div class="button-container">
+                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                <a href="cadenaValor.php" class="btn-siguiente">Siguiente</a>
+            </div>
 
         </div>
 
         <div class="info-content">
             <?php include('aside.php'); ?>
         </div>
-
         
     </div>
 
-    
 </body>
 </html>
