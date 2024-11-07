@@ -32,6 +32,34 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadena de Valor</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        .btn-volver, .btn-siguiente {
+            background-color: gray;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-volver:hover, .btn-siguiente:hover {
+            background-color: #555; /* Cambia el color al pasar el ratón */
+        }
+
+        .btn-siguiente {
+            background-color: #333; /* Color más oscuro para el botón "Siguiente" */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px; /* Espacio superior del contenedor */
+            padding: 10px; /* Relleno interno del contenedor */
+        
+        }
+    </style>
 </head>
 <body>
 
@@ -84,12 +112,11 @@ $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
                 <p>Cada eslabón de la cadena puede ser fuente de ventaja competitiva, ya sea porque se optimice (excelencia en la ejecución de una actividad) y/o mejore su coordinación con otra actividad.</p>
             
-                <!-- Botón Siguiente alineado a la izquierda -->
-                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-                <a href="cadenaValor2.php" class="btn-siguiente">
-                        Siguiente
-                    </a>
-                
+                <!-- Contenedor de los botones -->
+                <div class="button-container">
+                    <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                    <a href="cadenaValor2.php" class="btn-siguiente">Siguiente</a>
+                </div>
 
             </div>
         </div>
