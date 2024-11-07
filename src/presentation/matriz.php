@@ -524,11 +524,12 @@
                             <td>0.00</td>
                             <td>
                                 <?php 
-                                try {
+                                // Verificar si el índice existe y si hay ventas totales para evitar el error
+                                if (isset($ventas[$index]) && $totalVentas > 0) {
                                     echo number_format(($ventas[$index] / $totalVentas) * 100, 2) . '%';
-                                } catch (Exception $e) {
+                                } else {
                                     echo '0.00%';
-                                }                   
+                                }
                                 ?>
                             </td>
                         </tr>
