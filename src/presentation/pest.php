@@ -1,0 +1,1 @@
+analisis externo macroentorno PEST
