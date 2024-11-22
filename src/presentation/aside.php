@@ -9,6 +9,7 @@
         <li><a href="analisisInternoExterno.php">Análisis Interno y Externo</a></li>
         <li><a href="cadenaValor.php">Cadena de Valor</a></li>
         <li><a href="matriz1.php">Matriz de Participación</a></li>
+        <li><a href="matrizPorter1.php"> Matriz de Porter</a></li>
         <li><a href="#">Identificación de Estrategia</a></li>
         <li><a href="#">Acciones Competitivas</a></li>
         <li><a href="#">Conclusiones</a></li>

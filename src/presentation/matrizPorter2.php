@@ -1,0 +1,1 @@
+aca va el autodiagnostico de porter
