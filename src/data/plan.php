@@ -439,6 +439,120 @@ class PlanData
         }
     }
 
+    public function obtenerAmenazasPorId($idPlan) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para obtener las amenazas del plan
+            $query = "SELECT amenazas FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+    
+            // Asignar el valor al parámetro
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Obtener el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Retornar las amenazas si se encuentran, si no, retorna null
+            return $resultado ? $resultado['amenazas'] : null;
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }
+
+    public function actualizarAmenazas($idPlan, $nuevasAmenazas) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para actualizar las amenazas del plan
+            $query = "UPDATE plan SET amenazas = :amenazas WHERE idplan = :idPlan";
+    
+            $stmt = $conn->prepare($query);
+    
+            // Asignar los valores a los parámetros
+            $stmt->bindParam(':amenazas', $nuevasAmenazas);
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Actualización exitosa
+            } else {
+                return false; // Fallo en la actualización
+            }
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function obtenerOportunidadesPorId($idPlan) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para obtener las oportunidades del plan
+            $query = "SELECT oportunidades FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+    
+            // Asignar el valor al parámetro
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Obtener el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Retornar las oportunidades si se encuentran, si no, retorna null
+            return $resultado ? $resultado['oportunidades'] : null;
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }
+
+    public function actualizarOportunidades($idPlan, $nuevasOportunidades) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para actualizar las oportunidades del plan
+            $query = "UPDATE plan SET oportunidades = :oportunidades WHERE idplan = :idPlan";
+    
+            $stmt = $conn->prepare($query);
+    
+            // Asignar los valores a los parámetros
+            $stmt->bindParam(':oportunidades', $nuevasOportunidades);
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Actualización exitosa
+            } else {
+                return false; // Fallo en la actualización
+            }
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+
+
     public function obtenerReflexionesPorId($idPlan) {
         try {
             // Conexión a la base de datos
