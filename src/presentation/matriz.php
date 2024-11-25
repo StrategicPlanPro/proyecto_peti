@@ -346,7 +346,7 @@
         <!-- BOTONES -->
         <div>
             <button class="back-button" onclick="window.location.href='dashboard.php'">Volver</button>
-            <button class="next-button" onclick="window.location.href='###.php'">Siguiente</button>
+            <button class="next-button" onclick="window.location.href='matrizPorter1.php'">Siguiente</button>
         </div>
     </body>
 </html>
