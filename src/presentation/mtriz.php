@@ -1,3 +1,4 @@
+
 <?php
 
 require_once('../data/plan.php'); // Asegúrate de que esto apunte al archivo correcto donde tienes la clase PlanData
@@ -45,22 +46,6 @@ $preguntas = [
     " Disponibilidad de Productos Sustitutivos",
 ];
 
-// Calcular el total de los puntos
-$totalPuntos = array_sum($valoresporter);
-
-// Determinar la conclusión según el total de puntos
-$conclusion = '';
-if ($totalPuntos < 30) {
-    $conclusion = "Estamos en un mercado altamente competitivo, en el que es muy difícil hacerse un hueco en el mercado.";
-} elseif ($totalPuntos >= 30 && $totalPuntos < 45) {
-    $conclusion = "Estamos en un mercado de competitividad relativamente alta, pero con ciertas modificaciones en el producto y la política comercial de la empresa, podría encontrarse un nicho de mercado.";
-} elseif ($totalPuntos >= 45 && $totalPuntos < 60) {
-    $conclusion = "La situación actual del mercado es favorable a la empresa.";
-} else {
-    $conclusion = "Estamos en una situación excelente para la empresa.";
-}
-
-
 ?>
 
 <!DOCTYPE html>
@@ -101,10 +86,11 @@ if ($totalPuntos < 30) {
             border-radius: 8px; 
             transition: background-color 0.3s ease;
             margin-top: 10px;
+         
         }
 
         .button-save:hover {
-            background-color: #d43f3f;
+            background-color: #d43f3f; /* Color rojo más oscuro en hover */
         }
 
         body {
@@ -144,6 +130,24 @@ if ($totalPuntos < 30) {
             text-align: center;
             margin-top: 20px;
         }
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .result {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
         .textarea-title {
             font-size: 16px;
             margin-top: 20px;
@@ -160,33 +164,13 @@ if ($totalPuntos < 30) {
             font-size: 14px;
         }
     </style>
-    <script>
-        // Función para actualizar la conclusión basada en el puntaje
-        function actualizarConclusion() {
-            const radios = document.querySelectorAll('input[type="radio"]:checked');
-            let total = 0;
-
-            radios.forEach(radio => {
-                total += parseInt(radio.value);
-            });
-
-            const conclusionTextarea = document.getElementById('conclusion');
-            if (total < 30) {
-                conclusionTextarea.value = "Estamos en un mercado altamente competitivo, en el que es muy difícil hacerse un hueco en el mercado.";
-            } else if (total >= 30 && total < 45) {
-                conclusionTextarea.value = "Estamos en un mercado de competitividad relativamente alta, pero con ciertas modificaciones en el producto y la política comercial de la empresa, podría encontrarse un nicho de mercado.";
-            } else if (total >= 45 && total < 60) {
-                conclusionTextarea.value = "La situación actual del mercado es favorable a la empresa.";
-            } else {
-                conclusionTextarea.value = "Estamos en una situación excelente para la empresa.";
-            }
-        }
-    </script>
 </head>
 <body>
 
     <div class="container">
         <h2 class="center">Autodiagnóstico Porter</h2>
+
+        
 
         <form method="POST" action="../business/autodiagnosticoPorter.php">
             <table>
@@ -203,29 +187,29 @@ if ($totalPuntos < 30) {
                 <tbody>
                     <?php 
                     for ($i = 0; $i < 17; $i++) {
+                        // Obtener el valor seleccionado de autovalores
+                        $valorSeleccionado = isset($autovalores[$i]) ? $autovalores[$i] : 0;
                         $pregunta = $preguntas[$i]; // Obtener la pregunta correspondiente
-                        $valorSeleccionado = isset($valoresporter[$i]) ? $valoresporter[$i] : 0; // Obtener el valor guardado para cada pregunta
 
-                        // Generamos los radio buttons, con el valor seleccionado de la base de datos
                         echo "<tr>
                             <td>$pregunta</td>
-                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . " onchange='actualizarConclusion()'></td>
-                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . " onchange='actualizarConclusion()'></td>
-                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . " onchange='actualizarConclusion()'></td>
-                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . " onchange='actualizarConclusion()'></td>
-                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='5' " . ($valorSeleccionado == 5 ? 'checked' : '') . " onchange='actualizarConclusion()'></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
+                            <td><input type='radio' name='punto_" . ($i + 1) . "' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
                         </tr>";
                     }
                     ?>
                 </tbody>
             </table>
-
-            <!-- Área de texto para conclusiones -->
+            
+            <!-- Título y Cuadro de texto para Conclusiones -->
             <div class="center">
                 <label class="textarea-title">Conclusiones</label>
-                <textarea id="conclusion" class="conclusion-textarea" name="conclusion" readonly><?php echo htmlspecialchars($conclusion); ?></textarea>
+                <textarea class="conclusion-textarea" name="conclusion" placeholder="Conclusiones sobre el autodiagnóstico..."><?php echo isset($conclusiones) ? htmlspecialchars($reflexionesGuardadas) : ''; ?></textarea>
             </div>
-
+        
             <!-- Título y Cuadro de texto para oportunidades -->
             <div class="center">
                 <label class="textarea-title">Oportunidades</label>
@@ -238,12 +222,15 @@ if ($totalPuntos < 30) {
                 <textarea class="amenazas-textarea" name="amenazas" placeholder="Escribe las amenazas..."><?php echo isset($amenazasGuardadas) ? htmlspecialchars($amenazasGuardadas) : ''; ?></textarea>
             </div>
 
+
+            <!-- Botón para guardar la autoevaluación -->
             <div class="center">
-                <button type="submit" name="guardarEvaluacionPorter" class="button-save">Guardar Evaluación</button>
+                <button type="submit" name="guardarEvaluacionPorter" class="button-save">Realizar Evaluación Porter</button>
+                <button type="submit" name="guardarConclusion" class="button-save">Guardar Datos</button>
             </div>
         </form>
 
-        <div class="center" style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <div class="center" style="display: flex; justify-content: space-between; margin-top: 20px;">
             <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
             <a href="pest.php" class="btn-siguiente">Siguiente</a>
         </div>
@@ -251,4 +238,3 @@ if ($totalPuntos < 30) {
 
 </body>
 </html>
-
