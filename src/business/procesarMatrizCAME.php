@@ -51,14 +51,17 @@ if (isset($_POST['oportunidades'])) {
     }
 }
 
-// Establecer mensaje de éxito si hubo cambios
+// Determinar el mensaje de confirmación
 if ($cambiosRealizados) {
-    $_SESSION['mensaje_exito'] = "Datos actualizados correctamente.";
+    $mensaje = "Datos actualizados correctamente.";
 } else {
-    $_SESSION['mensaje_exito'] = "No se realizaron cambios.";
+    $mensaje = "No se realizaron cambios.";
 }
 
-// Redirigir a la vista matrizCAME.php
-header("Location: ../presentation/matrizCAME.php");
+// Mostrar el mensaje en un alert de JavaScript y redirigir
+echo "<script>
+    alert('$mensaje');
+    window.location.href = '../presentation/matrizCAME.php';
+</script>";
 exit();
 ?>

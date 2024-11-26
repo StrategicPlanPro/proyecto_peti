@@ -4,29 +4,43 @@ require_once('../data/plan.php');
 
 // Verificar si el usuario ha iniciado sesión
 if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
-    // Redirigir al usuario a la página de inicio de sesión
     header("Location: login.php");
     exit();
 }
 
 // Obtener el id del usuario y del plan desde la sesión
-$idusuario = $_SESSION['idusuario'];
 $idPlan = $_SESSION['idPlan'];
-
-// Crear una instancia de PlanData
 $planData = new PlanData();
 
-// Obtener las fortalezas, debilidades, amenazas y oportunidades del plan
+// Obtener fortalezas, debilidades, oportunidades y amenazas
 $fortalezas = $planData->obtenerFortalezasPorId($idPlan);
 $debilidades = $planData->obtenerDebilidadesPorId($idPlan);
 $amenazas = $planData->obtenerAmenazasPorId($idPlan);
 $oportunidades = $planData->obtenerOportunidadesPorId($idPlan);
 
-// Mostrar mensaje de éxito si se redirige desde el procesamiento
-$mensaje = '';
-if (isset($_SESSION['mensaje_exito'])) {
-    $mensaje = $_SESSION['mensaje_exito'];
-    unset($_SESSION['mensaje_exito']); // Limpiar el mensaje después de mostrarlo
+// Manejo de formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar'])) {
+    $nuevasFortalezas = $_POST['fortalezas'] ?? '';
+    $nuevasDebilidades = $_POST['debilidades'] ?? '';
+    $nuevasAmenazas = $_POST['amenazas'] ?? '';
+    $nuevasOportunidades = $_POST['oportunidades'] ?? '';
+
+    $exito = $planData->actualizarFortalezas($idPlan, $nuevasFortalezas) &&
+             $planData->actualizarDebilidades($idPlan, $nuevasDebilidades) &&
+             $planData->actualizarAmenazas($idPlan, $nuevasAmenazas) &&
+             $planData->actualizarOportunidades($idPlan, $nuevasOportunidades);
+
+    if ($exito) {
+        echo "<script>alert('Datos actualizados correctamente.');</script>";
+    } else {
+        echo "<script>alert('Error al actualizar los datos.');</script>";
+    }
+
+    // Recargar valores actualizados
+    $fortalezas = $nuevasFortalezas;
+    $debilidades = $nuevasDebilidades;
+    $amenazas = $nuevasAmenazas;
+    $oportunidades = $nuevasOportunidades;
 }
 ?>
 
@@ -36,151 +50,93 @@ if (isset($_SESSION['mensaje_exito'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matriz CAME</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+   
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 100%;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        .mensaje {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e7f3e7;
-            border: 1px solid #c1e1c1;
-            border-radius: 4px;
-            color: #2e7d32;
-            font-weight: bold;
-        }
-        form {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-        .matriz-item {
-            background-color: #e8eaf6;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-        }
-        .matriz-item h2 {
-            margin-top: 0;
-            font-size: 20px;
-            color: #3f51b5;
-        }
-        .matriz-item textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .button-container button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+        .btn-volver, .btn-siguiente {
+            background-color: gray;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .button-container button:hover {
-            background-color: #45a049;
-        }
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .navigation-buttons button {
             padding: 10px 20px;
-            font-size: 16px;
+            text-decoration: none;
             cursor: pointer;
-            border: none;
-            border-radius: 8px;
+            margin-top: 10px;
+            border-radius: 50px; /* Bordes más redondeados */
+            transition: background-color 0.3s ease;
         }
-        .btn-volver {
-            background-color: #2196F3;
-            color: white;
+
+        .btn-volver:hover, .btn-siguiente:hover, .btn-guardar:hover {
+            background-color: #555; /* Cambia el color al pasar el ratón */
         }
-        .btn-volver:hover {
-            background-color: #1E88E5;
-        }
+
         .btn-siguiente {
-            background-color: #FF9800;
-            color: white;
+            background-color: #333; /* Color más oscuro para el botón "Siguiente" */
         }
-        .btn-siguiente:hover {
-            background-color: #FB8C00;
+
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Espacio entre los botones */
+            margin-top: 10px; /* Margen superior */
         }
+
+     /* Estilo para aumentar el tamaño de los labels */
+     label {
+        font-size: 1.2em; /* Tamaño del texto */
+        font-weight: bold; /* Para que el texto sea más visible */
+    }
+
+    /* Estilo para los cuadros de texto */
+    textarea {
+        width: 100%; /* Para que ocupe todo el espacio disponible */
+        font-size: 1em; /* Ajusta el tamaño del texto dentro del cuadro */
+        padding: 10px; /* Espaciado interno para mejor legibilidad */
+        border: 1px solid #ccc; /* Bordes del cuadro */
+        border-radius: 5px; /* Bordes redondeados */
+        resize: vertical; /* Permite cambiar solo el alto del cuadro */
+        box-sizing: border-box; /* Asegura que el padding no rompa el diseño */
+    }
+
+    /* Opcional: mejorar el enfoque del cuadro */
+    textarea:focus {
+        border-color: #555; /* Cambia el color del borde al enfocar */
+        outline: none; /* Elimina el borde adicional del navegador */
+    }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="form-content">
+            <h1>Matriz CAME</h1>
+            <form method="POST" action="">
+                <div class="form-group">
+                    <label for="fortalezas">Fortalezas:</label><br>
+                    <textarea name="fortalezas" id="fortalezas"><?php echo htmlspecialchars($fortalezas); ?></textarea>
+                </div><br>
+                <div class="form-group">
+                    <label for="debilidades">Debilidades:</label><br>
+                    <textarea name="debilidades" id="debilidades"><?php echo htmlspecialchars($debilidades); ?></textarea>
+                </div><br>
+                <div class="form-group">
+                    <label for="oportunidades">Oportunidades:</label><br>
+                    <textarea name="oportunidades" id="oportunidades"><?php echo htmlspecialchars($oportunidades); ?></textarea>
+                </div><br>
+                <div class="form-group">
+                    <label for="amenazas">Amenazas:</label><br>
+                    <textarea name="amenazas" id="amenazas"><?php echo htmlspecialchars($amenazas); ?></textarea>
+                </div><br><br>
 
-<div class="container">
-    <h1>Matriz CAME</h1>
+                <input type="submit" name="guardar" value="Guardar" class="btn-guardar">
+            </form>
 
-    <!-- Mensaje de éxito -->
-    <?php if ($mensaje): ?>
-        <div class="mensaje"><?php echo htmlspecialchars($mensaje); ?></div>
-    <?php endif; ?>
-
-    <form method="POST" action="../business/procesarMatrizCAME.php">
-        <!-- Fortalezas -->
-        <div class="matriz-item">
-            <h2>Fortalezas</h2>
-            <textarea name="fortalezas"><?php echo $fortalezas ? htmlspecialchars($fortalezas) : ''; ?></textarea>
+            <div class="button-container">
+                <a href="dashboard.php" class="btn btn-volver">Volver al Dashboard</a>
+                <a href="siguientePaso.php" class="btn btn-siguiente">Siguiente</a>
+            </div>
         </div>
 
-        <!-- Debilidades -->
-        <div class="matriz-item">
-            <h2>Debilidades</h2>
-            <textarea name="debilidades"><?php echo $debilidades ? htmlspecialchars($debilidades) : ''; ?></textarea>
+        <div class="info-content">
+            <?php include('aside.php'); ?>
         </div>
-
-        <!-- Oportunidades -->
-        <div class="matriz-item">
-            <h2>Oportunidades</h2>
-            <textarea name="oportunidades"><?php echo $oportunidades ? htmlspecialchars($oportunidades) : ''; ?></textarea>
-        </div>
-
-        <!-- Amenazas -->
-        <div class="matriz-item">
-            <h2>Amenazas</h2>
-            <textarea name="amenazas"><?php echo $amenazas ? htmlspecialchars($amenazas) : ''; ?></textarea>
-        </div>
-
-        <!-- Botones -->
-        <div class="button-container">
-            <button type="submit">Guardar Cambios</button>
-        </div>
-    </form>
-
-    <!-- Navegación -->
-    <div class="navigation-buttons">
-        <button class="btn-volver" onclick="window.location.href='dashboard.php';">Volver</button>
-        <button class="btn-siguiente" onclick="window.location.href='final.php';">Siguiente</button>
     </div>
-</div>
-
 </body>
 </html>
