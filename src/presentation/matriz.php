@@ -2,6 +2,32 @@
     // Incluir archivos de la carpeta Business
     require_once '../business/procesarMatriz.php';
 
+    // Procesar el formulario antes de cualquier salida al navegador
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarFortalezasDebilidades'])) {
+        $nuevasFortalezas = $_POST['fortalezas'];
+        $nuevasDebilidades = $_POST['debilidades'];
+
+        try {
+            // Actualizar fortalezas y debilidades en la base de datos
+            $stmt = $pdo->prepare("UPDATE plan SET fortalezas = :fortalezas, debilidades = :debilidades WHERE idplan = :idplan");
+            $stmt->execute([
+                ':fortalezas' => $nuevasFortalezas,
+                ':debilidades' => $nuevasDebilidades,
+                ':idplan' => $idplan
+            ]);
+
+            // Mostrar mensaje de éxito y redirigir
+            echo "<script>
+                    alert('Fortalezas y debilidades actualizadas correctamente.');
+                    window.location.href = '" . $_SERVER['PHP_SELF'] . "';
+                  </script>";
+            exit(); // Detener el script después de mostrar el mensaje y redirigir
+
+        } catch (PDOException $e) {
+            echo "<script>alert('Error al guardar fortalezas y debilidades: " . addslashes($e->getMessage()) . "');</script>";
+        }
+    }
+
     // Llamar a la función para cargar fortalezas y debilidades
     $fortalezasDebilidades = cargarFortalezasYDebilidades($pdo, $idplan);
     $fortalezas = $fortalezasDebilidades['fortalezas'];
@@ -358,29 +384,7 @@
 
                 <input type="submit" name="guardarFortalezasDebilidades" value="Guardar cambios">
             </form>
-        </div>
-
-        <?php
-            // Guardar las fortalezas y debilidades si el formulario es enviado
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardarFortalezasDebilidades'])) {
-                $nuevasFortalezas = $_POST['fortalezas'];
-                $nuevasDebilidades = $_POST['debilidades'];
-
-                try {
-                    // Actualizar fortalezas y debilidades en la base de datos
-                    $stmt = $pdo->prepare("UPDATE plan SET fortalezas = :fortalezas, debilidades = :debilidades WHERE idplan = :idplan");
-                    $stmt->execute([
-                        ':fortalezas' => $nuevasFortalezas,
-                        ':debilidades' => $nuevasDebilidades,
-                        ':idplan' => $idplan
-                    ]);
-
-                    echo "<script>alert('Fortalezas y debilidades actualizadas correctamente.');</script>";
-                } catch (PDOException $e) {
-                    echo "<script>alert('Error al guardar fortalezas y debilidades: " . addslashes($e->getMessage()) . "');</script>";
-                }
-            }
-        ?>  
+        </div> 
         <!-- BOTONES -->
         <div>
             <button class="back-button" onclick="window.location.href='dashboard.php'">Volver</button>
