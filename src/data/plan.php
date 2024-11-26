@@ -667,6 +667,63 @@ class PlanData
         }
     }
 
+    public function obtenerValorPorterPorId($idPlan) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para obtener el autodiagnóstico del plan
+            $query = "SELECT valorPorter FROM plan WHERE idplan = :idPlan";
+            $stmt = $conn->prepare($query);
+    
+            // Asignar el valor al parámetro
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            $stmt->execute();
+    
+            // Obtener el resultado
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            // Retornar el autodiagnóstico si se encuentra, si no, retorna null
+            return $resultado ? $resultado['valorporter'] : null;
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return null;
+        }
+    }
+
+    public function actualizarValorPorter($idPlan, $nuevovalorPorter) {
+        try {
+            // Conexión a la base de datos
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Preparar la consulta SQL para actualizar el autodiagnóstico del plan
+            $query = "UPDATE plan SET valorporter = :valorporter WHERE idplan = :idPlan";
+    
+            $stmt = $conn->prepare($query);
+    
+            // Asignar los valores a los parámetros
+            $stmt->bindParam(':valorporter', $nuevovalorPorter);
+            $stmt->bindParam(':idPlan', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Actualización exitosa
+            } else {
+                return false; // Fallo en la actualización
+            }
+        } catch (PDOException $e) {
+            // Manejo de errores
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+
 }
 
 
