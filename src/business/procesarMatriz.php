@@ -326,4 +326,30 @@
         $decisiones = $resultados['decisiones']; // Agregar la obtención de decisiones
         echo "<script>alert('La matriz BCG se ha generado correctamente.');</script>";
     }
+
+    // Función para cargar fortalezas y debilidades
+    function cargarFortalezasYDebilidades($pdo, $idplan) {
+        try {
+            // Consultar fortalezas
+            $stmtFortalezas = $pdo->prepare("SELECT fortalezas FROM plan WHERE idplan = :idplan");
+            $stmtFortalezas->execute([':idplan' => $idplan]);
+            $fortalezas = $stmtFortalezas->fetchColumn();
+
+            // Consultar debilidades
+            $stmtDebilidades = $pdo->prepare("SELECT debilidades FROM plan WHERE idplan = :idplan");
+            $stmtDebilidades->execute([':idplan' => $idplan]);
+            $debilidades = $stmtDebilidades->fetchColumn();
+
+            return [
+                'fortalezas' => $fortalezas ?: '',
+                'debilidades' => $debilidades ?: ''
+            ];
+        } catch (PDOException $e) {
+            echo "<script>alert('Error al cargar fortalezas y debilidades: " . addslashes($e->getMessage()) . "');</script>";
+            return [
+                'fortalezas' => '',
+                'debilidades' => ''
+            ];
+        }
+    }
 ?>
