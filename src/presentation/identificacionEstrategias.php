@@ -22,6 +22,12 @@
 
     // Obtener el plan utilizando ambos IDs
     $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+
+    // Validar los datos antes de usarlos
+    $fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
+    $debilidades = !empty($plan['debilidades']) ? explode("\n", $plan['debilidades']) : [];
+    $oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
+    $amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +38,7 @@
     <title>Identificación de Estrategias</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
+        /* Botones */
         .btn-volver, .btn-siguiente {
             background-color: gray;
             color: white;
@@ -57,7 +64,57 @@
             margin-top: 20px;
             padding: 10px;
         }
-            
+
+        /* Contenedor de la tabla */
+        .table-container {
+            margin: 20px auto;
+            text-align: center;
+            width: 90%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        /* Estilo por categoría */
+        table tbody tr:nth-child(odd) td {
+            background-color: #f9f9f9; /* Color claro para filas impares */
+        }
+
+        table tbody tr:nth-child(even) td {
+            background-color: #ffffff; /* Color blanco para filas pares */
+        }
+
+        table th:nth-child(1) {
+            background-color: #ffe4c4; /* Fortalezas */
+        }
+
+        table th:nth-child(2) {
+            background-color: #d9fdd3; /* Debilidades */
+        }
+
+        table th:nth-child(3) {
+            background-color: #ffdab9; /* Oportunidades */
+        }
+
+        table th:nth-child(4) {
+            background-color: #d3e5ff; /* Amenazas */
+        }
     </style>
 </head>
 <body>
@@ -80,6 +137,37 @@
                 Pasemos a repasar de forma abreviada como funciona cada una de las cinco fuerzas.
                 </p>
                 
+            </div>
+
+            <!-- Título de la tabla -->
+            <h2 style="text-align: center;">Matriz de Factores Internos y Externos</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fortalezas</th>
+                            <th>Debilidades</th>
+                            <th>Oportunidades</th>
+                            <th>Amenazas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Determinar el número máximo de filas
+                        $maxRows = max(count($fortalezas), count($debilidades), count($oportunidades), count($amenazas));
+
+                        // Llenar la tabla dinámicamente
+                        for ($i = 0; $i < $maxRows; $i++) {
+                            echo "<tr>";
+                            echo "<td>" . ($fortalezas[$i] ?? '') . "</td>";
+                            echo "<td>" . ($debilidades[$i] ?? '') . "</td>";
+                            echo "<td>" . ($oportunidades[$i] ?? '') . "</td>";
+                            echo "<td>" . ($amenazas[$i] ?? '') . "</td>";
+                            echo "</tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Contenedor de los botones -->
