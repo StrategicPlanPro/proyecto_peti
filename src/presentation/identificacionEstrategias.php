@@ -170,44 +170,55 @@
                 </table>
             </div>
 
-        <!-- Matriz Cruzada de Estrategias -->
-        <h2 style="text-align: center;">Matriz de Estrategias Cruzadas</h2>
-        <div class="table-container">
-            <!-- Fortalezas / Oportunidades -->
-            <h3>Fortalezas / Oportunidades</h3>
-            <table class="fortalezas-oportunidades">
-                <thead>
-                    <tr>
-                        <th>Fortalezas / Oportunidades</th>
-                        <?php foreach ($oportunidades as $j => $oportunidad): ?>
-                            <th>O<?php echo $j + 1; ?></th>  <!-- Reemplazar por código O1, O2, O3, ... -->
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($fortalezas as $i => $fortaleza): ?>
-                        <tr>
-                            <!-- Reemplazar por código F1, F2, F3, ... -->
-                            <td>F<?php echo $i + 1; ?></td>
-                            <?php foreach ($oportunidades as $j => $oportunidad): ?>
-                                <td>
-                                    <select id="fortaleza_oportunidad_<?php echo $i . '_' . $j; ?>" class="select-strategy" onchange="calcularTotal()">
-                                        <option value="0">Seleccione</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                    </select>
-                                </td>
+            <!-- Matriz Cruzada de Estrategias -->
+            <form method="POST" action="../business/guardar_puntajes.php">
+                <h2 style="text-align: center;">Matriz de Estrategias Cruzadas</h2>
+                <div class="table-container">
+                    <h3>Fortalezas / Oportunidades</h3>
+                    <table class="fortalezas-oportunidades">
+                        <thead>
+                            <tr>
+                                <th>Fortalezas / Oportunidades</th>
+                                <?php foreach ($oportunidades as $j => $oportunidad): ?>
+                                    <th>O<?php echo $j + 1; ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($fortalezas as $i => $fortaleza): ?>
+                                <tr>
+                                    <td>F<?php echo $i + 1; ?></td>
+                                    <?php foreach ($oportunidades as $j => $oportunidad): ?>
+                                        <td>
+                                            <select name="fortaleza_oportunidad[<?php echo $i . '][' . $j; ?>]" class="select-strategy" onchange="calcularTotal()">
+                                                <option value="0">Seleccione</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
+                                            <!-- Hidden input to store the fortaleza and oportunidad names -->
+                                            <input type="hidden" name="fortaleza_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $fortaleza; ?>">
+                                            <input type="hidden" name="oportunidad_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $oportunidad; ?>">
+                                        </td>
+                                    <?php endforeach; ?>
+                                </tr>
                             <?php endforeach; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <div class="total-puntos">
-                Total de puntos (Fortalezas / Oportunidades): <span id="total-fortalezas-oportunidades">0</span>
-            </div>
-        </div>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Total de Puntajes -->
+                <div class="total-puntos">
+                    Total de puntos (Fortalezas / Oportunidades): <span id="total-fortalezas-oportunidades">0</span>
+                </div>
+
+                <!-- Campo oculto para enviar el puntaje total -->
+                <input type="hidden" name="total_puntaje" id="total_puntaje" value="0">
+
+                <!-- Botón para enviar los puntajes -->
+                <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
+            </form>
 
             <script>
                 // Función para calcular el total de puntos
@@ -224,8 +235,12 @@
                     
                     // Actualizar el total en la interfaz
                     document.getElementById('total-fortalezas-oportunidades').innerText = total;
+
+                    // Establecer el total en el campo hidden para enviarlo al servidor
+                    document.getElementById('total_puntaje').value = total;
                 }
             </script>
+
 
             <!-- Contenedor de los botones -->
             <div class="button-container">
