@@ -1,56 +1,45 @@
 <?php
 // Iniciar sesión
-    session_start();
+session_start();
 
-    // Verificar si el usuario ha iniciado sesión
-    if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
-        // Redirigir al usuario a la página de inicio de sesión
-        header("Location: login.php");
-        exit();
-    }
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: login.php");
+    exit();
+}
 
-    include_once '../data/plan.php';
-    include_once '../data/foda_puntajes.php';
+include_once '../data/plan.php';
+include_once '../data/foda_puntajes.php'; // Asegúrate de que este archivo se carga correctamente
 
-    // Obtener el idusuario de la sesión
-    $idusuario = $_SESSION['idusuario'];
+// Obtener el idusuario de la sesión
+$idusuario = $_SESSION['idusuario'];
 
-    // Obtener la id del plan de la sesión
-    $idPlan = $_SESSION['idPlan'];
+// Obtener la id del plan de la sesión
+$idPlan = $_SESSION['idPlan'];
 
-    // Crear una instancia de PlanData
-    $planData = new PlanData();
-    $fodaPuntajes = new FodaPuntajes();
+// Crear una instancia de PlanData y EvaluacionMatrizData
+$planData = new PlanData();
+$evaluacionData = new EvaluacionMatrizData(); // Usamos la clase correcta aquí
 
-    // Obtener el plan utilizando ambos IDs
-    $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+// Obtener el plan utilizando ambos IDs
+$plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
-    // Obtener los puntajes guardados para el plan
-    $puntajesGuardados = $fodaPuntajes->obtenerPuntajes($idPlan);
+// Validar los datos antes de usarlos
+$fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
+$debilidades = !empty($plan['debilidades']) ? explode("\n", $plan['debilidades']) : [];
+$oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
+$amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
 
-    // Transformar los puntajes a formato bidimensional
-    $puntajesGuardados = [];
-    foreach ($puntajesGuardados as $row) {
-        $fortaleza = $row['fortaleza_nombre'];
-        $oportunidad = $row['oportunidad_nombre'];
-        $puntaje = $row['puntaje'];
+// Fortalezas y Oportunidades predefinidas para la matriz cruzada
+$fortalezasPredeterminadas = ['F1', 'F2', 'F3', 'F4']; // Fortalezas predeterminadas
+$oportunidadesPredeterminadas = ['O1', 'O2', 'O3', 'O4']; // Oportunidades predeterminadas
 
-        // Asegúrate de que exista el índice de la fortaleza
-        if (!isset($puntajesGuardados[$fortaleza])) {
-            $puntajesGuardados[$fortaleza] = [];
-        }
-
-        // Asigna el puntaje en la posición correcta de la oportunidad
-        $puntajesGuardados[$fortaleza][$oportunidad] = $puntaje;
-    }
-
-    // Validar los datos antes de usarlos
-    $fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
-    $debilidades = !empty($plan['debilidades']) ? explode("\n", $plan['debilidades']) : [];
-    $oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
-    $amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
+// Obtener los puntajes guardados
+$puntajesGuardados = $evaluacionData->obtenerPuntajes($idPlan);
+$puntajeFinalGuardado = $puntajesGuardados ? $puntajesGuardados['puntaje_final'] : 0;
+$puntajesGuardados = $puntajesGuardados ? json_decode($puntajesGuardados['puntajes'], true) : [];
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -60,7 +49,7 @@
     <title>Identificación de Estrategias</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        /* Botones */
+        /* Estilo para los botones y la tabla */
         .btn-volver, .btn-siguiente {
             background-color: gray;
             color: white;
@@ -113,13 +102,12 @@
             font-weight: bold;
         }
 
-        /* Estilo por categoría */
         table tbody tr:nth-child(odd) td {
-            background-color: #f9f9f9; /* Color claro para filas impares */
+            background-color: #f9f9f9;
         }
 
         table tbody tr:nth-child(even) td {
-            background-color: #ffffff; /* Color blanco para filas pares */
+            background-color: #ffffff;
         }
 
         table th:nth-child(1) {
@@ -141,137 +129,108 @@
 </head>
 <body>
 
-    <div class="container2">
-        <div class="form-content2">
-            <h1 style="text-align: center;">Identificación de Estrategias</h1>
-            <div class="content">
-                <p>
+<div class="container2">
+    <div class="form-content2">
+        <h1 style="text-align: center;">Identificación de Estrategias</h1>
+        <div class="content">
+            <p>
                 Tras el análisis realizado habiéndose identificado las oportunidades, amenazas, fortalezas y debilidades, es momento de identificar 
                 la estrategia que debe seguir en su empresa para el logro de sus objetivos empresariales. Se trata de realizar una Matriz Cruzada tal y como 
-                se refleja en el siguente dibujo para identificar la estrategía más conveniente a llevar a cabo. 
-                </p>
+                se refleja en el siguiente dibujo para identificar la estrategia más conveniente a llevar a cabo.
+            </p>
 
-                <div class="image">
-                    <img src="assets/images/idestrategia1.png" alt="Modelo Porter" class="image-external">
-                </div>
-
-                <p>
-                Pasemos a repasar de forma abreviada como funciona cada una de las cinco fuerzas.
-                </p>
-                
+            <div class="image">
+                <img src="assets/images/idestrategia1.png" alt="Modelo Porter" class="image-external">
             </div>
 
-            <!-- Título de la tabla -->
-            <h2 style="text-align: center;">Matriz de Factores Internos y Externos</h2>
-            <div class="table-container">
+            <p>
+                A continuación se presentará la **Matriz Cruzada** con las **Fortalezas** en las filas y las **Oportunidades** en las columnas.
+                El usuario podrá asignar un puntaje entre 1 y 4 para cada relación entre Fortaleza y Oportunidad.
+            </p>
+        </div>
+
+        <!-- Título de la tabla -->
+        <h2 style="text-align: center;">Matriz de Factores Internos y Externos</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fortalezas</th>
+                        <th>Debilidades</th>
+                        <th>Oportunidades</th>
+                        <th>Amenazas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Determinar el número máximo de filas
+                    $maxRows = max(count($fortalezas), count($debilidades), count($oportunidades), count($amenazas));
+
+                    // Llenar la tabla dinámicamente
+                    for ($i = 0; $i < $maxRows; $i++) {
+                        echo "<tr>";
+                        echo "<td>" . ($fortalezas[$i] ?? '') . "</td>";
+                        echo "<td>" . ($debilidades[$i] ?? '') . "</td>";
+                        echo "<td>" . ($oportunidades[$i] ?? '') . "</td>";
+                        echo "<td>" . ($amenazas[$i] ?? '') . "</td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Título de la tabla de la matriz cruzada -->
+        <h2 style="text-align: center;">Matriz de Fortalezas y Oportunidades</h2>
+        <div class="table-container">
+            <form action="../business/guardar_puntajes.php" method="POST">
                 <table>
                     <thead>
                         <tr>
                             <th>Fortalezas</th>
-                            <th>Debilidades</th>
-                            <th>Oportunidades</th>
-                            <th>Amenazas</th>
+                            <?php
+                            // Mostrar las Oportunidades en el encabezado de las columnas (predefinidas)
+                            foreach ($oportunidadesPredeterminadas as $oportunidad) {
+                                echo "<th>$oportunidad</th>";
+                            }
+                            ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        // Determinar el número máximo de filas
-                        $maxRows = max(count($fortalezas), count($debilidades), count($oportunidades), count($amenazas));
-
-                        // Llenar la tabla dinámicamente
-                        for ($i = 0; $i < $maxRows; $i++) {
+                        // Mostrar las Fortalezas en las filas (predefinidas)
+                        foreach ($fortalezasPredeterminadas as $fortaleza) {
                             echo "<tr>";
-                            echo "<td>" . ($fortalezas[$i] ?? '') . "</td>";
-                            echo "<td>" . ($debilidades[$i] ?? '') . "</td>";
-                            echo "<td>" . ($oportunidades[$i] ?? '') . "</td>";
-                            echo "<td>" . ($amenazas[$i] ?? '') . "</td>";
+                            echo "<td>$fortaleza</td>";
+                            // Mostrar las celdas para puntuar
+                            foreach ($oportunidadesPredeterminadas as $oportunidad) {
+                                // Recuperar el puntaje guardado si existe
+                                $puntaje = isset($puntajesGuardados[$fortaleza][$oportunidad]) ? $puntajesGuardados[$fortaleza][$oportunidad] : '';
+                                echo "<td><input type='number' name='puntaje[$fortaleza][$oportunidad]' min='1' max='4' value='$puntaje' required></td>";
+                            }
                             echo "</tr>";
                         }
                         ?>
                     </tbody>
                 </table>
-            </div>
 
-            <!-- Matriz Cruzada de Estrategias -->
-            <form method="POST" action="../business/guardar_puntajes.php">
-                <h2 style="text-align: center;">Matriz de Estrategias Cruzadas</h2>
-                <div class="table-container">
-                    <h3>Fortalezas / Oportunidades</h3>
-                    <table class="fortalezas-oportunidades">
-                        <thead>
-                            <tr>
-                                <th>Fortalezas / Oportunidades</th>
-                                <?php foreach ($oportunidades as $j => $oportunidad): ?>
-                                    <th>O<?php echo $j + 1; ?></th>
-                                <?php endforeach; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($fortalezas as $i => $fortaleza): ?>
-                                <tr>
-                                    <td>F<?php echo $i + 1; ?></td>
-                                    <?php foreach ($oportunidades as $j => $oportunidad): ?>
-                                        <td>
-                                            <select name="fortaleza_oportunidad[<?php echo $i . '][' . $j; ?>]" class="select-strategy" onchange="calcularTotal()">
-                                                <option value="0">Seleccione</option>
-                                                <option value="1" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 1) ? 'selected' : ''; ?>>1</option>
-                                                <option value="2" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 2) ? 'selected' : ''; ?>>2</option>
-                                                <option value="3" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 3) ? 'selected' : ''; ?>>3</option>
-                                                <option value="4" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 4) ? 'selected' : ''; ?>>4</option>
-                                            </select>
-                                            <input type="hidden" name="fortaleza_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $fortaleza; ?>">
-                                            <input type="hidden" name="oportunidad_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $oportunidad; ?>">
-                                        </td>
-                                    <?php endforeach; ?>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                <!-- Mostrar el puntaje final -->
+                <div class="puntaje-final">
+                    <label for="puntaje_final">Puntaje Final:</label>
+                    <input type="number" id="puntaje_final" name="puntaje_final" value="<?= $puntajeFinalGuardado ?>" readonly>
                 </div>
 
-                <!-- Total de Puntajes -->
-                <div class="total-puntos">
-                    Total de puntos (Fortalezas / Oportunidades): <span id="total-fortalezas-oportunidades">0</span>
+                <div class="button-container">
+                    <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                    <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
                 </div>
-
-                <!-- Campo oculto para enviar el puntaje total -->
-                <input type="hidden" name="total_puntaje" id="total_puntaje" value="0">
-
-                <!-- Botón para enviar los puntajes -->
-                <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
             </form>
-
-            <script>
-                // Función para calcular el total de puntos
-                function calcularTotal() {
-                    let total = 0;
-                    
-                    // Obtener todos los selectores de la tabla
-                    const selects = document.querySelectorAll('.select-strategy');
-                    
-                    // Recorrer cada selector y sumar los valores seleccionados
-                    selects.forEach(select => {
-                        total += parseInt(select.value) || 0; // Si no se selecciona un valor, se considera 0
-                    });
-                    
-                    // Actualizar el total en la interfaz
-                    document.getElementById('total-fortalezas-oportunidades').innerText = total;
-
-                    // Establecer el total en el campo hidden para enviarlo al servidor
-                    document.getElementById('total_puntaje').value = total;
-                }
-            </script>
-
-
-            <!-- Contenedor de los botones -->
-            <div class="button-container">
-                <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-                <a href="matrizCAME.php" class="btn-siguiente">Siguiente</a>
-            </div>
-        </div>
-        <div class="info-content">
-            <?php include('aside.php'); ?>
         </div>
     </div>
+    <div class="info-content">
+        <?php include('aside.php'); ?>
+    </div>
+</div>
+
 </body>
 </html>

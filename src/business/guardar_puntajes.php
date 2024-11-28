@@ -1,37 +1,54 @@
 <?php
-    include_once '../data/foda_puntajes.php'; // Asegúrate de incluir la clase de puntajes
-    // Asegurarse de que los datos estén disponibles
-    if (isset($_POST['fortaleza_oportunidad'], $_POST['fortaleza_nombre'], $_POST['oportunidad_nombre'], $_POST['total_puntaje'])) {
-        // Obtener el plan_id desde la sesión o desde un parámetro
-        session_start();
-        $plan_id = $_SESSION['idPlan'];
+// Iniciar sesión
+session_start();
 
-        // Instanciar la clase FodaPuntajes
-        $fodaPuntajes = new FodaPuntajes();
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['idPlan'])) {
+    // Redirigir al usuario a la página de inicio de sesión si no está autenticado
+    header("Location: login.php");
+    exit();
+}
 
-        // Guardar los puntajes individuales (de la matriz)
-        foreach ($_POST['fortaleza_oportunidad'] as $i => $row) {
-            foreach ($row as $j => $puntaje) {
-                $fortaleza_nombre = $_POST['fortaleza_nombre'][$i][$j];
-                $oportunidad_nombre = $_POST['oportunidad_nombre'][$i][$j];
+// Incluir archivos necesarios
+include_once '../data/foda_puntajes.php';
 
-                // Verificar si fortaleza_nombre y oportunidad_nombre no están vacíos
-                if (empty($fortaleza_nombre) || empty($oportunidad_nombre) || $puntaje == 0) {
-                    // Si el nombre de fortaleza o oportunidad está vacío, o el puntaje es 0, continuar con el siguiente registro
-                    continue;
-                }
+// Obtener el idPlan desde la sesión
+$idPlan = $_SESSION['idPlan'];
 
-                // Guardar el puntaje si todo es válido
-                $fodaPuntajes->guardarPuntaje($plan_id, $fortaleza_nombre, $oportunidad_nombre, $puntaje);
-            }
+// Verificar si los puntajes fueron enviados por el formulario
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['puntaje'])) {
+    // Obtener los puntajes enviados (array de puntajes)
+    $puntajes = $_POST['puntaje']; // Array con los puntajes
+
+    // Crear una instancia de la clase de Evaluaciones
+    $evaluacionData = new EvaluacionMatrizData();
+
+    // Convertir el array de puntajes en un formato JSON
+    $puntajes_json = json_encode($puntajes);
+
+    // Calcular el puntaje final (por ejemplo, sumando todos los puntajes)
+    $puntaje_final = 0;
+    foreach ($puntajes as $fortalezas) {
+        foreach ($fortalezas as $puntaje) {
+            $puntaje_final += (int)$puntaje;  // Sumar los puntajes
         }
-
-        // Guardar el puntaje total (si es necesario)
-        $total_puntaje = $_POST['total_puntaje']; // El puntaje total enviado por el formulario
-        $fodaPuntajes->guardarPuntajeTotal($plan_id, $total_puntaje); // Guardar el puntaje total
-
-        // Redirigir a la siguiente página o mostrar un mensaje de éxito
-        header("Location: ../presentation/identificacionEstrategias.php");
-        exit();
     }
+
+    // Verificar si ya existe un registro para el plan_id
+    if ($evaluacionData->existeEvaluacion($idPlan)) {
+        // Si ya existe, actualizar los puntajes y puntaje final
+        $evaluacionData->actualizarPuntaje($idPlan, $puntajes_json, $puntaje_final);
+    } else {
+        // Si no existe, insertar los puntajes
+        $evaluacionData->guardarPuntaje($idPlan, $puntajes_json, $puntaje_final);
+    }
+
+    // Redirigir a la página de confirmación o al Dashboard
+    header("Location: ../presentation/identificacionEstrategias.php"); // Redirigir a una página de confirmación
+    exit();
+} else {
+    // Si no se reciben puntajes, redirigir al formulario
+    header("Location: matrizCAME.php");
+    exit();
+}
 ?>
