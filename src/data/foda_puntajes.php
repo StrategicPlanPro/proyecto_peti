@@ -60,29 +60,40 @@
             // Establecer la conexión a la base de datos
             $db = new Conexion();
             $conn = $db->getConnection();
-    
+
             // Consultar si ya existe un registro para el puntaje total de este plan
             $sql = "SELECT * FROM foda_puntajes WHERE plan_id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(1, $plan_id, PDO::PARAM_INT); // Vincula el parámetro correctamente
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
             if ($result) {
                 // Si ya existe, actualizamos el puntaje total
-                $sql_update = "UPDATE foda_puntajes SET puntaje = ?, fecha_registro = CURRENT_TIMESTAMP WHERE plan_id = ?";
+                $sql_update = "UPDATE foda_puntajes SET puntaje_total = ?, fecha_registro = CURRENT_TIMESTAMP WHERE plan_id = ?";
                 $stmt_update = $conn->prepare($sql_update);
                 $stmt_update->bindParam(1, $total_puntaje, PDO::PARAM_INT);  // Vincula el puntaje total
                 $stmt_update->bindParam(2, $plan_id, PDO::PARAM_INT);         // Vincula el plan_id
                 $stmt_update->execute();
             } else {
                 // Si no existe, insertamos el puntaje total
-                $sql_insert = "INSERT INTO foda_puntajes (plan_id, puntaje) VALUES (?, ?)";
+                $sql_insert = "INSERT INTO foda_puntajes (plan_id, puntaje_total) VALUES (?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
                 $stmt_insert->bindParam(1, $plan_id, PDO::PARAM_INT);        // Vincula el plan_id
                 $stmt_insert->bindParam(2, $total_puntaje, PDO::PARAM_INT);  // Vincula el puntaje total
                 $stmt_insert->execute();
             }
         }
+        public function obtenerPuntajeTotal($plan_id) {
+            // Crear la consulta SQL para obtener el puntaje total de la base de datos
+            $query = "SELECT puntaje_total FROM puntajes WHERE plan_id = :plan_id LIMIT 1"; // Ajusta esta consulta según tu base de datos
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':plan_id', $plan_id);
+            $stmt->execute();
+            
+            // Obtener el resultado y devolver el puntaje total
+            return $stmt->fetch(PDO::FETCH_ASSOC)['puntaje_total'] ?? 0; // Retorna 0 si no se encuentra el puntaje total
+        }
+        
     }
 ?>

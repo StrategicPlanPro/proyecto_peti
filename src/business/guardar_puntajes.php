@@ -28,12 +28,10 @@
 
         // Guardar el puntaje total (si es necesario)
         $total_puntaje = $_POST['total_puntaje']; // El puntaje total enviado por el formulario
-        // Aquí puedes hacer algo con el puntaje total, como guardarlo en una tabla o actualizar un campo en la tabla principal
-        // Por ejemplo, guardar el puntaje total en una tabla específica:
-        $fodaPuntajes->guardarPuntajeTotal($plan_id, $total_puntaje);
+        $fodaPuntajes->guardarPuntajeTotal($plan_id, $total_puntaje); // Guardar el puntaje total
 
         // Redirigir a la siguiente página o mostrar un mensaje de éxito
-        header("Location: siguiente_pagina.php");
+        header("Location: ../presentation/identificacionEstrategias.php");
         exit();
     }
 ?>

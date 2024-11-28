@@ -10,6 +10,7 @@
     }
 
     include_once '../data/plan.php';
+    include_once '../data/foda_puntajes.php';
 
     // Obtener el idusuario de la sesión
     $idusuario = $_SESSION['idusuario'];
@@ -19,9 +20,29 @@
 
     // Crear una instancia de PlanData
     $planData = new PlanData();
+    $fodaPuntajes = new FodaPuntajes();
 
     // Obtener el plan utilizando ambos IDs
     $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+
+    // Obtener los puntajes guardados para el plan
+    $puntajesGuardados = $fodaPuntajes->obtenerPuntajes($idPlan);
+
+    // Transformar los puntajes a formato bidimensional
+    $puntajesGuardados = [];
+    foreach ($puntajesGuardados as $row) {
+        $fortaleza = $row['fortaleza_nombre'];
+        $oportunidad = $row['oportunidad_nombre'];
+        $puntaje = $row['puntaje'];
+
+        // Asegúrate de que exista el índice de la fortaleza
+        if (!isset($puntajesGuardados[$fortaleza])) {
+            $puntajesGuardados[$fortaleza] = [];
+        }
+
+        // Asigna el puntaje en la posición correcta de la oportunidad
+        $puntajesGuardados[$fortaleza][$oportunidad] = $puntaje;
+    }
 
     // Validar los datos antes de usarlos
     $fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
@@ -29,6 +50,7 @@
     $oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
     $amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -192,12 +214,11 @@
                                         <td>
                                             <select name="fortaleza_oportunidad[<?php echo $i . '][' . $j; ?>]" class="select-strategy" onchange="calcularTotal()">
                                                 <option value="0">Seleccione</option>
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
+                                                <option value="1" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 1) ? 'selected' : ''; ?>>1</option>
+                                                <option value="2" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 2) ? 'selected' : ''; ?>>2</option>
+                                                <option value="3" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 3) ? 'selected' : ''; ?>>3</option>
+                                                <option value="4" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 4) ? 'selected' : ''; ?>>4</option>
                                             </select>
-                                            <!-- Hidden input to store the fortaleza and oportunidad names -->
                                             <input type="hidden" name="fortaleza_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $fortaleza; ?>">
                                             <input type="hidden" name="oportunidad_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $oportunidad; ?>">
                                         </td>
