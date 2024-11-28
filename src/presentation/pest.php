@@ -9,12 +9,27 @@ if (!isset($_SESSION['idPlan'])) {
 
 $idPlan = $_SESSION['idPlan'];
 
-// Instancia de la clase que maneja los planes
 $pest = new AnalisisPest();
 
 $respuestasGuardadas = $pest->obtenerPest($idPlan);
-
 $respuestas = $respuestasGuardadas ? explode(",", $respuestasGuardadas) : array_fill(0, 25, 0);
+
+    // Calcular los puntajes de cada factor basados en las respuestas
+    $puntajesCalculados = [
+        'social' => 0,
+        'ambiental' => 0,
+        'politico' => 0,
+        'economico' => 0,
+        'tecnologico' => 0
+    ];
+    
+    // Asumiendo que las respuestas están ordenadas según los factores
+    // Esto depende de cómo se organice la respuesta en el formulario
+    $puntajesCalculados['social'] = (array_sum(array_slice($respuestas, 0, 5)) / 5) * 25; // Social: 5 respuestas
+    $puntajesCalculados['ambiental'] = (array_sum(array_slice($respuestas, 5, 5)) / 5) * 25; // Ambiental: 5 respuestas
+    $puntajesCalculados['politico'] = (array_sum(array_slice($respuestas, 10, 5)) / 5) * 25; // Político: 5 respuestas
+    $puntajesCalculados['economico'] = (array_sum(array_slice($respuestas, 15, 5)) / 5) * 25; // Económico: 5 respuestas
+    $puntajesCalculados['tecnologico'] = (array_sum(array_slice($respuestas, 20, 5)) / 5) * 25; // Tecnológico: 5 respuestas
 
 // Enunciados del análisis PEST
 $enunciados = [
@@ -48,6 +63,53 @@ $enunciados = [
     "La creciente preocupación social por el medio ambiente impacta notablemente en la demanda de productos/servicios.",
     "El factor ecológico es una fuente de diferenciación clara en el sector."
 ];
+
+// Lógica para generar conclusiones
+function generarConclusion($respuestas, $inicio, $cantidad) {
+    $rangos = array_slice($respuestas, $inicio, $cantidad);
+
+    $deAcuerdo = count(array_filter($rangos, fn($v) => $v == 2));
+    $bastanteDeAcuerdo = count(array_filter($rangos, fn($v) => $v == 3));
+    $enTotalAcuerdo = count(array_filter($rangos, fn($v) => $v == 4));
+
+    // Evaluar conclusiones según las combinaciones especificadas
+    if ($bastanteDeAcuerdo >= 3 || $enTotalAcuerdo >= 2) {
+        return "HAY UN NOTABLE IMPACTO DEL FACTOR EN EL FUNCIONAMIENTO DE LA EMPRESA.";
+    } elseif ($deAcuerdo >= 2 && $bastanteDeAcuerdo >= 2) {
+        return "NO HAY UN NOTABLE IMPACTO DEL FACTOR EN EL FUNCIONAMIENTO DE LA EMPRESA.";
+    } else {
+        return "IMPACTO DEL FACTOR NO CLARAMENTE DEFINIDO.";
+    }
+}
+
+// Generar conclusiones para cada factor
+$conclusiones = [
+    "Económico" => generarConclusion($respuestas, 0, 5),
+    "Político" => generarConclusion($respuestas, 5, 5),
+    "Social" => generarConclusion($respuestas, 10, 5),
+    "Tecnológico" => generarConclusion($respuestas, 15, 5),
+    "Ambiental" => generarConclusion($respuestas, 20, 5)
+];
+// Obtener los puntajes de los factores (si existen)
+$puntajes = [
+    'social' => $_POST['puntaje_social'] ?? 0,
+    'ambiental' => $_POST['puntaje_ambiental'] ?? 0,
+    'politico' => $_POST['puntaje_politico'] ?? 0,
+    'economico' => $_POST['puntaje_economico'] ?? 0,
+    'tecnologico' => $_POST['puntaje_tecnologico'] ?? 0
+];
+
+// Recuperar oportunidades y amenazas desde la base de datos
+$oportunidades = "";  // Valor predeterminado vacío
+$amenazas = "";  // Valor predeterminado vacío
+
+// Método para obtener las oportunidades y amenazas de la base de datos
+$oportunidadesAmenazas = $pest->obtenerOportunidadesAmenazas($idPlan);
+if ($oportunidadesAmenazas) {
+    $oportunidades = $oportunidadesAmenazas['oportunidades'];
+    $amenazas = $oportunidadesAmenazas['amenazas'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +118,10 @@ $enunciados = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis PEST</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Estilos del formulario */
         .btn-volver, .btn-siguiente {
             background-color: gray;
             color: white;
@@ -68,15 +133,12 @@ $enunciados = [
             transition: background-color 0.3s ease;
             margin-top: 10px;
         }
-
         .btn-volver:hover, .btn-siguiente:hover {
             background-color: #555;
         }
-
         .btn-siguiente {
             background-color: #333;
         }
-
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -87,7 +149,6 @@ $enunciados = [
             align-items: center;
             height: 100vh;
         }
-
         .container {
             background-color: white;
             padding: 20px;
@@ -99,34 +160,28 @@ $enunciados = [
             overflow-y: auto;
             margin: 20px auto;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
         }
-
         th {
             background-color: #f2f2f2;
         }
-
         .center {
             text-align: center;
             margin-top: 20px;
         }
-
         .textarea-title {
             font-size: 16px;
             margin-top: 20px;
             font-weight: bold;
             color: #333;
         }
-
         .textarea {
             width: 100%;
             height: 100px;
@@ -140,51 +195,116 @@ $enunciados = [
 </head>
 <body>
 
-    <div class="container">
-        <h2 class="center">Análisis PEST</h2>
+<div class="container">
+    <h2 class="center">Análisis PEST</h2>
 
-        <form method="POST" action="../business/procesar_analisis_pest.php">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Enunciado</th>
-                        <th>En total en desacuerdo</th>
-                        <th>No está de acuerdo</th>
-                        <th>Está de acuerdo</th>
-                        <th>Está bastante de acuerdo</th>
-                        <th>En total acuerdo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                        // Generar las filas para cada enunciado
-                        foreach ($enunciados as $index => $enunciado) {
-                            $valorSeleccionado = isset($respuestas[$index]) ? $respuestas[$index] : 0; // Usar $respuestasGuardadas
-                            echo "<tr>
-                                <td>$enunciado</td>
-                                <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
-                                <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
-                                <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
-                                <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
-                                <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
-                            </tr>";
-                        }
-                    ?>
-                </tbody>
-            </table>
+    <form method="POST" action="../business/procesar_analisis_pest.php">
+        <input type="hidden" name="conclusion_economico" value="<?php echo $conclusiones['Económico']; ?>">
+        <input type="hidden" name="conclusion_politico" value="<?php echo $conclusiones['Político']; ?>">
+        <input type="hidden" name="conclusion_social" value="<?php echo $conclusiones['Social']; ?>">
+        <input type="hidden" name="conclusion_tecnologico" value="<?php echo $conclusiones['Tecnológico']; ?>">
+        <input type="hidden" name="conclusion_ambiental" value="<?php echo $conclusiones['Ambiental']; ?>">
+        <table>
+            <thead>
+            <tr>
+                <th>Enunciado</th>
+                <th>En total en desacuerdo</th>
+                <th>No está de acuerdo</th>
+                <th>Está de acuerdo</th>
+                <th>Está bastante de acuerdo</th>
+                <th>En total acuerdo</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($enunciados as $index => $enunciado) {
+                $valorSeleccionado = isset($respuestas[$index]) ? $respuestas[$index] : 0;
+                echo "<tr>
+                        <td>$enunciado</td>
+                        <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='0' " . ($valorSeleccionado == 0 ? 'checked' : '') . "></td>
+                        <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='1' " . ($valorSeleccionado == 1 ? 'checked' : '') . "></td>
+                        <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='2' " . ($valorSeleccionado == 2 ? 'checked' : '') . "></td>
+                        <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='3' " . ($valorSeleccionado == 3 ? 'checked' : '') . "></td>
+                        <td><input type='radio' name='respuesta_" . ($index + 1) . "' value='4' " . ($valorSeleccionado == 4 ? 'checked' : '') . "></td>
+                    </tr>";
+            }
+            ?>
+            </tbody>
+        </table>
 
-            <!-- Botón para realizar el análisis -->
-            <div class="center">
-                <button type="submit" name="guardarAnalisis" class="button-save">Realizar Análisis PEST</button>
-            </div>
-        </form>
-
-        <!-- Botones para navegación -->
-        <div class="center" style="display: flex; justify-content: space-between; margin-top: 20px;">
-            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-            <a href="matriz1.php" class="btn-siguiente">Siguiente</a>
+        <div class="center">
+            <button type="submit" name="guardarAnalisis" class="button-save">Realizar Análisis PEST</button>
         </div>
+
+    <h3 class="center">Conclusiones</h3>
+    <ul>
+        <?php
+        foreach ($conclusiones as $factor => $conclusion) {
+            echo "<li><strong>$factor:</strong> $conclusion</li>";
+        }
+        ?>
+    </ul>
+
+    <div class="center">
+        <button type="submit" name="guardarConclusiones" class="button-save">Guardar Conclusiones</button>
+    </div>
+    
+    <div class="mt-4">
+        <h4>Gráfico de Impacto de los Factores Externos</h4>
+        <canvas id="impactoFactores" width="400" height="200"></canvas>
     </div>
 
+    <div class="mt-4">
+    <h4>Oportunidades</h4>
+        <textarea name="oportunidades" class="textarea" placeholder="Escribe las oportunidades aquí..."><?php echo htmlspecialchars($oportunidades); ?></textarea>
+    </div>
+
+    <div class="mt-4">
+        <h4>Amenazas</h4>
+        <textarea name="amenazas" class="textarea" placeholder="Escribe las amenazas aquí..."><?php echo htmlspecialchars($amenazas); ?></textarea>
+    </div>
+
+    <div class="center mt-4">
+        <button type="submit" name="guardarOportunidadesAmenazas" class="btn-siguiente">Guardar Oportunidades y Amenazas</button>
+    </div>
+</form>
+
+    <div class="center">
+        <a href="dashboard.php" class="btn-volver">Volver</a>
+    </div>
+</div>
+
+<script>
+    // Crear el gráfico de barras con Chart.js
+    var ctx = document.getElementById('impactoFactores').getContext('2d');
+    var impactoFactores = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Social', 'Ambiental', 'Político', 'Económico', 'Tecnológico'],
+            datasets: [{
+                label: 'Nivel de Impacto de Factores Externos',
+                data: [
+                    <?= $puntajesCalculados['social'] ?>,
+                    <?= $puntajesCalculados['ambiental'] ?>,
+                    <?= $puntajesCalculados['politico'] ?>,
+                    <?= $puntajesCalculados['economico'] ?>,
+                    <?= $puntajesCalculados['tecnologico'] ?>
+                ],
+                backgroundColor: ['#007bff', '#28a745', '#dc3545', '#ffc107', '#6f42c1'],
+                borderColor: ['#0056b3', '#218838', '#c82333', '#e0a800', '#5a3e93'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
 </body>
 </html>
