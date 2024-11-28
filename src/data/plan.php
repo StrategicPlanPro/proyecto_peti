@@ -722,9 +722,4 @@ class PlanData
             return false;
         }
     }
-
-
 }
-
-
-

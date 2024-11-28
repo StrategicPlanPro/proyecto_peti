@@ -10,6 +10,7 @@
     }
 
     include_once '../data/plan.php';
+    include_once '../data/foda_puntajes.php';
 
     // Obtener el idusuario de la sesión
     $idusuario = $_SESSION['idusuario'];
@@ -19,9 +20,29 @@
 
     // Crear una instancia de PlanData
     $planData = new PlanData();
+    $fodaPuntajes = new FodaPuntajes();
 
     // Obtener el plan utilizando ambos IDs
     $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+
+    // Obtener los puntajes guardados para el plan
+    $puntajesGuardados = $fodaPuntajes->obtenerPuntajes($idPlan);
+
+    // Transformar los puntajes a formato bidimensional
+    $puntajesGuardados = [];
+    foreach ($puntajesGuardados as $row) {
+        $fortaleza = $row['fortaleza_nombre'];
+        $oportunidad = $row['oportunidad_nombre'];
+        $puntaje = $row['puntaje'];
+
+        // Asegúrate de que exista el índice de la fortaleza
+        if (!isset($puntajesGuardados[$fortaleza])) {
+            $puntajesGuardados[$fortaleza] = [];
+        }
+
+        // Asigna el puntaje en la posición correcta de la oportunidad
+        $puntajesGuardados[$fortaleza][$oportunidad] = $puntaje;
+    }
 
     // Validar los datos antes de usarlos
     $fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
@@ -29,6 +50,7 @@
     $oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
     $amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -169,6 +191,77 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Matriz Cruzada de Estrategias -->
+            <form method="POST" action="../business/guardar_puntajes.php">
+                <h2 style="text-align: center;">Matriz de Estrategias Cruzadas</h2>
+                <div class="table-container">
+                    <h3>Fortalezas / Oportunidades</h3>
+                    <table class="fortalezas-oportunidades">
+                        <thead>
+                            <tr>
+                                <th>Fortalezas / Oportunidades</th>
+                                <?php foreach ($oportunidades as $j => $oportunidad): ?>
+                                    <th>O<?php echo $j + 1; ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($fortalezas as $i => $fortaleza): ?>
+                                <tr>
+                                    <td>F<?php echo $i + 1; ?></td>
+                                    <?php foreach ($oportunidades as $j => $oportunidad): ?>
+                                        <td>
+                                            <select name="fortaleza_oportunidad[<?php echo $i . '][' . $j; ?>]" class="select-strategy" onchange="calcularTotal()">
+                                                <option value="0">Seleccione</option>
+                                                <option value="1" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 1) ? 'selected' : ''; ?>>1</option>
+                                                <option value="2" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 2) ? 'selected' : ''; ?>>2</option>
+                                                <option value="3" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 3) ? 'selected' : ''; ?>>3</option>
+                                                <option value="4" <?php echo (isset($puntajesGuardados[$fortaleza][$oportunidad]) && $puntajesGuardados[$fortaleza][$oportunidad] == 4) ? 'selected' : ''; ?>>4</option>
+                                            </select>
+                                            <input type="hidden" name="fortaleza_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $fortaleza; ?>">
+                                            <input type="hidden" name="oportunidad_nombre[<?php echo $i . '][' . $j; ?>]" value="<?php echo $oportunidad; ?>">
+                                        </td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Total de Puntajes -->
+                <div class="total-puntos">
+                    Total de puntos (Fortalezas / Oportunidades): <span id="total-fortalezas-oportunidades">0</span>
+                </div>
+
+                <!-- Campo oculto para enviar el puntaje total -->
+                <input type="hidden" name="total_puntaje" id="total_puntaje" value="0">
+
+                <!-- Botón para enviar los puntajes -->
+                <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
+            </form>
+
+            <script>
+                // Función para calcular el total de puntos
+                function calcularTotal() {
+                    let total = 0;
+                    
+                    // Obtener todos los selectores de la tabla
+                    const selects = document.querySelectorAll('.select-strategy');
+                    
+                    // Recorrer cada selector y sumar los valores seleccionados
+                    selects.forEach(select => {
+                        total += parseInt(select.value) || 0; // Si no se selecciona un valor, se considera 0
+                    });
+                    
+                    // Actualizar el total en la interfaz
+                    document.getElementById('total-fortalezas-oportunidades').innerText = total;
+
+                    // Establecer el total en el campo hidden para enviarlo al servidor
+                    document.getElementById('total_puntaje').value = total;
+                }
+            </script>
+
 
             <!-- Contenedor de los botones -->
             <div class="button-container">
