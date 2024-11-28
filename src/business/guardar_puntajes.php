@@ -1,54 +1,74 @@
 <?php
-// Iniciar sesión
-session_start();
+    // Iniciar sesión
+    session_start();
 
-// Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['idPlan'])) {
-    // Redirigir al usuario a la página de inicio de sesión si no está autenticado
-    header("Location: login.php");
-    exit();
-}
+    // Verificar si el usuario ha iniciado sesión
+    if (!isset($_SESSION['idPlan'])) {
+        exit();
+    }
 
-// Incluir archivos necesarios
-include_once '../data/foda_puntajes.php';
+    // Incluir archivos necesarios
+    include_once '../data/foda_puntajes.php';
 
-// Obtener el idPlan desde la sesión
-$idPlan = $_SESSION['idPlan'];
+    // Obtener el idPlan desde la sesión
+    $idPlan = $_SESSION['idPlan'];
 
-// Verificar si los puntajes fueron enviados por el formulario
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['puntaje'])) {
-    // Obtener los puntajes enviados (array de puntajes)
-    $puntajes = $_POST['puntaje']; // Array con los puntajes
+    // Crear una instancia de EvaluacionMatrizData
+    $evaluacionData = new EvaluacionMatrizData();  // Esto inicializa la clase
 
-    // Crear una instancia de la clase de Evaluaciones
-    $evaluacionData = new EvaluacionMatrizData();
+    // Verificar si el formulario ha sido enviado y contiene los puntajes
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['puntaje']) && isset($_POST['puntaje2'])) {
+        // Puntajes para la matriz Fortalezas/Oportunidades
+        $puntajes = $_POST['puntaje'];  // Array de puntajes
+        $puntajes_json = json_encode($puntajes);  // Convertir a JSON
 
-    // Convertir el array de puntajes en un formato JSON
-    $puntajes_json = json_encode($puntajes);
-
-    // Calcular el puntaje final (por ejemplo, sumando todos los puntajes)
-    $puntaje_final = 0;
-    foreach ($puntajes as $fortalezas) {
-        foreach ($fortalezas as $puntaje) {
-            $puntaje_final += (int)$puntaje;  // Sumar los puntajes
+        // Calcular el puntaje final para la matriz Fortalezas/Oportunidades
+        $puntaje_final = 0;
+        foreach ($puntajes as $fortalezas) {
+            foreach ($fortalezas as $puntaje) {
+                $puntaje_final += (int)$puntaje;  // Sumar los puntajes de la matriz
+            }
         }
-    }
 
-    // Verificar si ya existe un registro para el plan_id
-    if ($evaluacionData->existeEvaluacion($idPlan)) {
-        // Si ya existe, actualizar los puntajes y puntaje final
-        $evaluacionData->actualizarPuntaje($idPlan, $puntajes_json, $puntaje_final);
+        // Puntajes para la matriz Fortalezas/Amenazas
+        $puntajes2 = $_POST['puntaje2'];  // Array de puntajes
+        $puntajes_json2 = json_encode($puntajes2);  // Convertir a JSON
+
+        // Calcular el puntaje final para la matriz Fortalezas/Amenazas
+        $puntaje_final2 = 0;
+        foreach ($puntajes2 as $fortalezas) {
+            foreach ($fortalezas as $puntaje) {
+                $puntaje_final2 += (int)$puntaje;  // Sumar los puntajes de la matriz
+            }
+        }
+
+        // Verificar si ya existe un registro para el plan_id
+        if ($evaluacionData->existeEvaluacion($idPlan)) {
+            // Si ya existe, actualizar los puntajes y puntajes finales de ambas matrices
+            $evaluacionData->actualizarPuntaje(
+                $idPlan, 
+                $puntajes_json, 
+                $puntaje_final, 
+                $puntajes_json2, 
+                $puntaje_final2
+            );
+        } else {
+            // Si no existe, insertar los puntajes para ambas matrices
+            $evaluacionData->guardarPuntaje(
+                $idPlan, 
+                $puntajes_json, 
+                $puntaje_final, 
+                $puntajes_json2, 
+                $puntaje_final2
+            );
+        }
+
+        // Redirigir a la página de confirmación o al Dashboard
+        header("Location: ../presentation/identificacionEstrategias.php");
+        exit();
     } else {
-        // Si no existe, insertar los puntajes
-        $evaluacionData->guardarPuntaje($idPlan, $puntajes_json, $puntaje_final);
+        // Si no se reciben puntajes, redirigir al formulario
+        header("Location: ../presentation/identificacionEstrategias.php");
+        exit();
     }
-
-    // Redirigir a la página de confirmación o al Dashboard
-    header("Location: ../presentation/identificacionEstrategias.php"); // Redirigir a una página de confirmación
-    exit();
-} else {
-    // Si no se reciben puntajes, redirigir al formulario
-    header("Location: matrizCAME.php");
-    exit();
-}
 ?>

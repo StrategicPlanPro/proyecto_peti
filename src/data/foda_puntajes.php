@@ -21,9 +21,9 @@ class EvaluacionMatrizData {
     }
 
     // Guardar puntaje en la base de datos
-    public function guardarPuntaje($idPlan, $puntajes_json, $puntaje_final) {
-        $query = "INSERT INTO evaluaciones_matriz (plan_id, puntajes, puntaje_final) 
-                  VALUES (:plan_id, :puntajes, :puntaje_final)";
+    public function guardarPuntaje($idPlan, $puntajes_json, $puntaje_final, $puntajes_json2, $puntaje_final2) {
+        $query = "INSERT INTO evaluaciones_matriz (plan_id, puntajes, puntaje_final, puntajes2, puntaje_final2) 
+                  VALUES (:plan_id, :puntajes, :puntaje_final, :puntajes2, :puntaje_final2)";
         
         // Preparar la consulta
         $stmt = $this->db->prepare($query);
@@ -32,14 +32,16 @@ class EvaluacionMatrizData {
         $stmt->bindParam(':plan_id', $idPlan);
         $stmt->bindParam(':puntajes', $puntajes_json);
         $stmt->bindParam(':puntaje_final', $puntaje_final);
+        $stmt->bindParam(':puntajes2', $puntajes_json2);
+        $stmt->bindParam(':puntaje_final2', $puntaje_final2);
         
         // Ejecutar la consulta
         return $stmt->execute();  // Retorna true si se ejecutó correctamente
     }
 
     // Actualizar puntaje en la base de datos
-    public function actualizarPuntaje($idPlan, $puntajes_json, $puntaje_final) {
-        $query = "UPDATE evaluaciones_matriz SET puntajes = :puntajes, puntaje_final = :puntaje_final 
+    public function actualizarPuntaje($idPlan, $puntajes_json, $puntaje_final, $puntajes_json2, $puntaje_final2) {
+        $query = "UPDATE evaluaciones_matriz SET puntajes = :puntajes, puntaje_final = :puntaje_final, puntajes2 = :puntajes2, puntaje_final2 = :puntaje_final2 
                   WHERE plan_id = :plan_id";
         
         // Preparar la consulta
@@ -49,6 +51,8 @@ class EvaluacionMatrizData {
         $stmt->bindParam(':plan_id', $idPlan);
         $stmt->bindParam(':puntajes', $puntajes_json);
         $stmt->bindParam(':puntaje_final', $puntaje_final);
+        $stmt->bindParam(':puntajes2', $puntajes_json2);
+        $stmt->bindParam(':puntaje_final2', $puntaje_final2);
         
         // Ejecutar la consulta
         return $stmt->execute();  // Retorna true si se ejecutó correctamente
@@ -56,7 +60,27 @@ class EvaluacionMatrizData {
 
     // Obtener puntajes de la base de datos
     public function obtenerPuntajes($idPlan) {
-        $query = "SELECT puntajes, puntaje_final FROM evaluaciones_matriz WHERE plan_id = :plan_id LIMIT 1";
+        $query = "SELECT puntajes, puntaje_final, puntajes2, puntaje_final2 FROM evaluaciones_matriz WHERE plan_id = :plan_id LIMIT 1";
+        
+        // Preparar la consulta
+        $stmt = $this->db->prepare($query);
+        
+        // Bind de parámetros
+        $stmt->bindParam(':plan_id', $idPlan);
+        
+        // Ejecutar la consulta
+        $stmt->execute();
+        
+        // Obtener el resultado
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Retorna el puntaje como un array
+        return $result;
+    }
+
+    // Obtener puntajes de la base de datos
+    public function obtenerPuntajes2($idPlan) {
+        $query = "SELECT puntajes2, puntaje_final2 FROM evaluaciones_matriz WHERE plan_id = :plan_id LIMIT 1";
         
         // Preparar la consulta
         $stmt = $this->db->prepare($query);

@@ -1,44 +1,50 @@
 <?php
-// Iniciar sesión
-session_start();
+    // Iniciar sesión
+    session_start();
 
-// Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
-    // Redirigir al usuario a la página de inicio de sesión
-    header("Location: login.php");
-    exit();
-}
+    // Verificar si el usuario ha iniciado sesión
+    if (!isset($_SESSION['idusuario']) || !isset($_SESSION['idPlan'])) {
+        // Redirigir al usuario a la página de inicio de sesión
+        header("Location: login.php");
+        exit();
+    }
 
-include_once '../data/plan.php';
-include_once '../data/foda_puntajes.php'; // Asegúrate de que este archivo se carga correctamente
+    include_once '../data/plan.php';
+    include_once '../data/foda_puntajes.php'; // Asegúrate de que este archivo se carga correctamente
 
-// Obtener el idusuario de la sesión
-$idusuario = $_SESSION['idusuario'];
+    // Obtener el idusuario de la sesión
+    $idusuario = $_SESSION['idusuario'];
 
-// Obtener la id del plan de la sesión
-$idPlan = $_SESSION['idPlan'];
+    // Obtener la id del plan de la sesión
+    $idPlan = $_SESSION['idPlan'];
 
-// Crear una instancia de PlanData y EvaluacionMatrizData
-$planData = new PlanData();
-$evaluacionData = new EvaluacionMatrizData(); // Usamos la clase correcta aquí
+    // Crear una instancia de PlanData y EvaluacionMatrizData
+    $planData = new PlanData();
+    $evaluacionData = new EvaluacionMatrizData(); // Usamos la clase correcta aquí
 
-// Obtener el plan utilizando ambos IDs
-$plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
+    // Obtener el plan utilizando ambos IDs
+    $plan = $planData->obtenerPlanPorId($idPlan, $idusuario);
 
-// Validar los datos antes de usarlos
-$fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
-$debilidades = !empty($plan['debilidades']) ? explode("\n", $plan['debilidades']) : [];
-$oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
-$amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
+    // Validar los datos antes de usarlos
+    $fortalezas = !empty($plan['fortalezas']) ? explode("\n", $plan['fortalezas']) : [];
+    $debilidades = !empty($plan['debilidades']) ? explode("\n", $plan['debilidades']) : [];
+    $oportunidades = !empty($plan['oportunidades']) ? explode("\n", $plan['oportunidades']) : [];
+    $amenazas = !empty($plan['amenazas']) ? explode("\n", $plan['amenazas']) : [];
 
-// Fortalezas y Oportunidades predefinidas para la matriz cruzada
-$fortalezasPredeterminadas = ['F1', 'F2', 'F3', 'F4']; // Fortalezas predeterminadas
-$oportunidadesPredeterminadas = ['O1', 'O2', 'O3', 'O4']; // Oportunidades predeterminadas
+    // Fortalezas y Oportunidades predefinidas para la matriz cruzada
+    $fortalezasPredeterminadas = ['F1', 'F2', 'F3', 'F4']; // Fortalezas predeterminadas
+    $oportunidadesPredeterminadas = ['O1', 'O2', 'O3', 'O4']; // Oportunidades predeterminadas
+    $amenazasPredeterminadas = ['A1', 'A2', 'A3', 'A4']; // Amenazas predeterminadas
 
-// Obtener los puntajes guardados
-$puntajesGuardados = $evaluacionData->obtenerPuntajes($idPlan);
-$puntajeFinalGuardado = $puntajesGuardados ? $puntajesGuardados['puntaje_final'] : 0;
-$puntajesGuardados = $puntajesGuardados ? json_decode($puntajesGuardados['puntajes'], true) : [];
+    // Obtener los puntajes guardados
+    $puntajesGuardados = $evaluacionData->obtenerPuntajes($idPlan);
+    $puntajeFinalGuardado = isset($puntajesGuardados['puntaje_final']) ? $puntajesGuardados['puntaje_final'] : 0;
+    $puntajesGuardados = isset($puntajesGuardados['puntajes']) ? json_decode($puntajesGuardados['puntajes'], true) : [];
+
+    // Obtener los puntajes para la segunda matriz
+    $puntajesGuardados2 = $evaluacionData->obtenerPuntajes2($idPlan);
+    $puntajeFinalGuardado2 = isset($puntajesGuardados2['puntaje_final2']) ? $puntajesGuardados2['puntaje_final2'] : 0;
+    $puntajesGuardados2 = isset($puntajesGuardados2['puntajes2']) ? json_decode($puntajesGuardados2['puntajes2'], true) : [];
 ?>
 
 <!DOCTYPE html>
@@ -219,11 +225,55 @@ $puntajesGuardados = $puntajesGuardados ? json_decode($puntajesGuardados['puntaj
                     <label for="puntaje_final">Puntaje Final:</label>
                     <input type="number" id="puntaje_final" name="puntaje_final" value="<?= $puntajeFinalGuardado ?>" readonly>
                 </div>
+                <br>
+                <br>
 
-                <div class="button-container">
-                    <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
-                    <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
+                <h2 style="text-align: center;">Matriz de Fortalezas y Amenazas</h2>
+                <div class="table-container">
+                    <form action="../business/guardar_puntajes.php" method="POST">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fortalezas</th>
+                                    <?php
+                                    // Mostrar las Amenazas en el encabezado de las columnas
+                                    foreach ($amenazasPredeterminadas as $amenaza) {
+                                        echo "<th>$amenaza</th>";
+                                    }
+                                    ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                // Mostrar las Fortalezas en las filas
+                                foreach ($fortalezasPredeterminadas as $fortaleza) {
+                                    echo "<tr>";
+                                    echo "<td>$fortaleza</td>";
+                                    // Mostrar las celdas para puntuar
+                                    foreach ($amenazasPredeterminadas as $amenaza) {
+                                        // Recuperar el puntaje guardado si existe
+                                        $puntaje = isset($puntajesGuardados2[$fortaleza][$amenaza]) ? $puntajesGuardados2[$fortaleza][$amenaza] : '';
+                                        echo "<td><input type='number' name='puntaje2[$fortaleza][$amenaza]' min='1' max='4' value='$puntaje' required></td>";
+                                    }
+                                    echo "</tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+
+                        <!-- Mostrar el puntaje final -->
+                        <div class="puntaje-final">
+                            <label for="puntaje_final2">Puntaje Final:</label>
+                            <input type="number" id="puntaje_final2" name="puntaje_final2" value="<?= $puntajeFinalGuardado2 ?>" readonly>
+                        </div>
+
+                        <div class="button-container">
+                            <a href="dashboard.php" class="btn-volver">Volver al Dashboard</a>
+                            <button type="submit" class="btn-siguiente">Guardar Puntajes</button>
+                        </div>
+                    </form>
                 </div>
+
             </form>
         </div>
     </div>
