@@ -311,13 +311,15 @@ class PlanData
             $db = new Conexion();
             $conn = $db->getConnection();
     
-            // Consulta para obtener todos los campos excepto las IDs
+            // Consulta actualizada para incluir todos los campos solicitados
             $query = "SELECT nombreEmpresa, fecha, promotores, logo, mision, vision, valores, 
                       objetivosGenerales, objetivosEspecificos, fortalezas, debilidades, 
-                      oportunidades, amenazas, estrategia, accionesCompetitivas, conclusiones 
-                      FROM plan WHERE idplan = :idPlan";
+                      oportunidades, amenazas, unidadesEstrategicas, estrategia, 
+                      accionesCompetitivas, conclusiones 
+                      FROM plan 
+                      WHERE idplan = :idPlan";
             $stmt = $conn->prepare($query);
-            $stmt->bindParam(':idPlan', $idPlan);
+            $stmt->bindParam(':idPlan', $idPlan, PDO::PARAM_INT); // Asegurar que se pase como entero
             $stmt->execute();
     
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -325,7 +327,7 @@ class PlanData
             echo "Error: " . $e->getMessage();
             return null;
         }
-    }    
+    }      
 
     public function obtenerFortalezasPorId($idPlan) {
         try {

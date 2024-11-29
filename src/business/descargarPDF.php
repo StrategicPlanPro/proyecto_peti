@@ -1,9 +1,9 @@
 <?php
 require('../libs/fpdf/fpdf.php');
-require_once('../data/plan.php'); // Incluye tu clase de PlanData
+require_once('../data/plan.php');
 
 // Desactivar la visualización de advertencias y errores
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE); // Ocultar advertencias y notificaciones deprecadas
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 
 // Verificar si se ha pasado la ID del plan por GET
 if (!isset($_GET['id'])) {
@@ -27,55 +27,43 @@ if (!$plan) {
 // Crear un nuevo PDF
 $pdf = new FPDF();
 $pdf->AddPage();
-$pdf->SetFont('Arial', 'B', 16);
+
+// Configurar fuente con soporte para caracteres especiales
+$pdf->AddFont('Courier', '', 'courier.php'); // Asegúrate de tener los archivos de la fuente en tu directorio
+$pdf->SetFont('Courier', '', 12);
 
 // Título
-$pdf->Cell(190, 10, 'Datos del Plan Estrategico', 0, 1, 'C');
-$pdf->Ln(10); // Salto de línea
+$pdf->SetFont('Arial', 'B', 16);
+$pdf->Cell(190, 10, utf8_decode('Datos del Plan Estratégico'), 0, 1, 'C');
+$pdf->Ln(10);
 
-// Añadir los campos del plan, verificando si no son nulos o vacíos
-$pdf->SetFont('Arial', '', 12);
+// Función para agregar una celda con texto desplazado
+function agregarCampo($pdf, $titulo, $contenido) {
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(50, 10, utf8_decode($titulo), 0, 0);
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->SetX(60); // Ajustar margen para contenido
+    $pdf->MultiCell(130, 10, utf8_decode(!empty($contenido) ? $contenido : 'N/A'), 0, 1);
+}
 
-// Nombre Empresa
-$pdf->Cell(40, 10, 'Nombre Empresa:');
-$pdf->Cell(150, 10, !empty($plan['nombreempresa']) ? $plan['nombreempresa'] : 'N/A', 0, 1);
-
-// Fecha
-$pdf->Cell(40, 10, 'Fecha:');
-$pdf->Cell(150, 10, !empty($plan['fecha']) ? $plan['fecha'] : 'N/A', 0, 1);
-
-// Promotores
-$pdf->Cell(40, 10, 'Promotores:');
-$pdf->MultiCell(150, 10, !empty($plan['promotores']) ? $plan['promotores'] : 'N/A', 0, 1);
-
-// Misión
-$pdf->Cell(40, 10, 'Mision:');
-$pdf->MultiCell(150, 10, !empty($plan['mision']) ? $plan['mision'] : 'N/A', 0, 1);
-
-// Visión
-$pdf->Cell(40, 10, 'Vision:');
-$pdf->MultiCell(150, 10, !empty($plan['vision']) ? $plan['vision'] : 'N/A', 0, 1);
-
-// Valores
-$pdf->Cell(40, 10, 'Valores:');
-$pdf->MultiCell(150, 10, !empty($plan['valores']) ? $plan['valores'] : 'N/A', 0, 1);
-
-// Objetivos Generales
-$pdf->Cell(40, 10, 'Objetivos Generales:');
-$pdf->MultiCell(150, 10, !empty($plan['objetivosgenerales']) ? $plan['objetivosgenerales'] : 'N/A', 0, 1);
-
-// Objetivos Específicos
-$pdf->Cell(40, 10, 'Objetivos Especificos:');
-$pdf->MultiCell(150, 10, !empty($plan['objetivosespecificos']) ? $plan['objetivosespecificos'] : 'N/A', 0, 1);
-
-// Fortalezas
-$pdf->Cell(40, 10, 'Fortalezas:');
-$pdf->MultiCell(150, 10, !empty($plan['fortalezas']) ? $plan['fortalezas'] : 'N/A', 0, 1);
-
-// Debilidades
-$pdf->Cell(40, 10, 'Debilidades:');
-$pdf->MultiCell(150, 10, !empty($plan['debilidades']) ? $plan['debilidades'] : 'N/A', 0, 1);
+// Añadir los campos del plan
+agregarCampo($pdf, 'Nombre Empresa:', $plan['nombreempresa']);
+agregarCampo($pdf, 'Fecha:', $plan['fecha']);
+agregarCampo($pdf, 'Promotores:', $plan['promotores']);
+agregarCampo($pdf, 'Misión:', $plan['mision']);
+agregarCampo($pdf, 'Visión:', $plan['vision']);
+agregarCampo($pdf, 'Valores:', $plan['valores']);
+agregarCampo($pdf, 'Objetivos Generales:', $plan['objetivosgenerales']);
+agregarCampo($pdf, 'Objetivos Específicos:', $plan['objetivosespecificos']);
+agregarCampo($pdf, 'Fortalezas:', $plan['fortalezas']);
+agregarCampo($pdf, 'Debilidades:', $plan['debilidades']);
+agregarCampo($pdf, 'Amenazas:', $plan['amenazas']);
+agregarCampo($pdf, 'Oportunidades:', $plan['oportunidades']);
+agregarCampo($pdf, 'Unidades Estratégicas:', $plan['unidadesestrategicas']);
+agregarCampo($pdf, 'Estrategia:', $plan['estrategia']);
+agregarCampo($pdf, 'Acciones Competitivas:', $plan['accionescompetitivas']);
+agregarCampo($pdf, 'Conclusiones:', $plan['conclusiones']);
 
 // Generar el PDF y forzar la descarga
-$pdf->Output('D', 'PlanEstrategico.pdf'); // Forzar descarga con nombre "PlanEstrategico.pdf"
+$pdf->Output('D', 'PlanEstrategico.pdf');
 ?>
