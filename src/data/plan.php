@@ -724,4 +724,45 @@ class PlanData
             return false;
         }
     }
+
+    public function actualizarCamposPlan($idPlan, $campos)
+    {
+        try {
+            $db = new Conexion();
+            $conn = $db->getConnection();
+    
+            // Verificar que los campos no sean nulos o vacíos
+            if (empty($campos['unidadesestrategicas']) || empty($campos['estrategia']) || empty($campos['accionescompetitivas']) || empty($campos['conclusiones'])) {
+                throw new Exception("Uno o más campos están vacíos");
+            }
+    
+            $sql = "UPDATE plan SET 
+                        unidadesestrategicas = :unidadesestrategicas, 
+                        estrategia = :estrategia, 
+                        accionescompetitivas = :accionescompetitivas, 
+                        conclusiones = :conclusiones 
+                    WHERE idplan = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':unidadesestrategicas', $campos['unidadesestrategicas']);
+            $stmt->bindParam(':estrategia', $campos['estrategia']);
+            $stmt->bindParam(':accionescompetitivas', $campos['accionescompetitivas']);
+            $stmt->bindParam(':conclusiones', $campos['conclusiones']);
+            $stmt->bindParam(':id', $idPlan);
+    
+            // Ejecutar la consulta
+            if ($stmt->execute()) {
+                return true; // Si la actualización fue exitosa
+            } else {
+                throw new Exception("Error al ejecutar la consulta SQL");
+            }
+        } catch (PDOException $e) {
+            // Capturar errores relacionados con PDO
+            echo "Error de base de datos: " . $e->getMessage(); // Mostrar el error de PDO
+            return false;
+        } catch (Exception $e) {
+            // Capturar errores generales y otros
+            echo "Error: " . $e->getMessage(); // Mostrar el mensaje de error
+            return false;
+        }
+    }    
 }
